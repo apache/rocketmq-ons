@@ -169,7 +169,13 @@ public class ProducerImpl extends ONSClientAbstract implements Producer {
             message.setMsgID(MessageClientIDSetter.getUniqID(msgRMQ));
         } catch (Exception e) {
             LOGGER.error(String.format("Send message async Exception, %s", message), e);
-            throw checkProducerException(message.getTopic(), message.getMsgID(), e);
+            //throw checkProducerException(message.getTopic(), message.getMsgID(), e);
+            ONSClientException clientException = checkProducerException(message.getTopic(), message.getMsgID(), e);
+            OnExceptionContext context = new OnExceptionContext();
+            context.setException(clientException);
+            context.setTopic(message.getTopic());
+            context.setMessageId(message.getMsgID());
+            sendCallback.onException(context);
         }
     }
 
