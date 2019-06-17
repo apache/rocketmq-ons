@@ -51,7 +51,7 @@ public class Message implements Serializable {
     }
 
 
-    void putSystemProperties(final String key, final String value) {
+    public void putSystemProperties(final String key, final String value) {
         if (null == this.systemProperties) {
             this.systemProperties = new Properties();
         }
@@ -102,7 +102,7 @@ public class Message implements Serializable {
     }
 
 
-    String getSystemProperties(final String key) {
+    public String getSystemProperties(final String key) {
         if (null != this.systemProperties) {
             return this.systemProperties.getProperty(key);
         }
@@ -135,15 +135,21 @@ public class Message implements Serializable {
         this.putSystemProperties(SystemPropKey.MSGID, msgid);
     }
 
-    Properties getSystemProperties() {
+    public Properties getSystemProperties() {
+        if (null == systemProperties) {
+            return new Properties();
+        }
         return systemProperties;
     }
 
-    void setSystemProperties(Properties systemProperties) {
+    public void setSystemProperties(Properties systemProperties) {
         this.systemProperties = systemProperties;
     }
 
     public Properties getUserProperties() {
+        if (null == userProperties) {
+            return new Properties();
+        }
         return userProperties;
     }
 
