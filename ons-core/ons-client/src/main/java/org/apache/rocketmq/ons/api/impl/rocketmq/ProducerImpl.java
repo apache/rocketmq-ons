@@ -192,11 +192,11 @@ public class ProducerImpl extends ONSClientAbstract implements Producer {
 
             @Override
             public void onException(Throwable e) {
-                String topic = new String(message.getTopic());
+                //String topic = new String(message.getTopic());
                 String msgId = new String(message.getMsgID());
-                ONSClientException onsEx = checkProducerException(topic, msgId, e);
+                ONSClientException onsEx = checkProducerException(message.getTopic(), msgId, e);
                 OnExceptionContext context = new OnExceptionContext();
-                context.setTopic(topic);
+                context.setTopic(message.getTopic());
                 context.setMessageId(msgId);
                 context.setException(onsEx);
                 sendCallback.onException(context);
