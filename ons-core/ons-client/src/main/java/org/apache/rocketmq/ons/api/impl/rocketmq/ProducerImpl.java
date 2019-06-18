@@ -199,6 +199,7 @@ public class ProducerImpl extends ONSClientAbstract implements Producer {
             public void onException(Throwable e) {
                 //String topic = new String(message.getTopic());
                 //String msgId = new String(message.getMsgID());
+                LOGGER.error(String.format("Send message async Exception, %s", message), e);
                 ONSClientException onsEx = checkProducerException(message.getTopic(), message.getMsgID(), e);
                 OnExceptionContext context = new OnExceptionContext();
                 context.setTopic(message.getTopic());
