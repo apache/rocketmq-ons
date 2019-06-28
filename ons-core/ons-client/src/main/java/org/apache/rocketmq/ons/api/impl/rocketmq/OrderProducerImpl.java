@@ -36,6 +36,7 @@ import org.apache.rocketmq.ons.api.impl.tracehook.OnsClientSendMessageHookImpl;
 import org.apache.rocketmq.ons.api.impl.util.ClientLoggerUtil;
 import org.apache.rocketmq.ons.api.order.OrderProducer;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.remoting.protocol.LanguageCode;
 
 public class OrderProducerImpl extends ONSClientAbstract implements OrderProducer {
     private final static InternalLogger LOGGER = ClientLoggerUtil.getClientLogger();
@@ -62,7 +63,11 @@ public class OrderProducerImpl extends ONSClientAbstract implements OrderProduce
 
 //        boolean addExtendUniqInfo = Boolean.parseBoolean(properties.getProperty(PropertyKeyConst.EXACTLYONCE_DELIVERY, "false"));
 //        this.defaultMQProducer.setAddExtendUniqInfo(addExtendUniqInfo);
-
+        if (properties.containsKey(PropertyKeyConst.LANGUAGE_IDENTIFIER)) {
+            int language = Integer.valueOf(properties.get(PropertyKeyConst.LANGUAGE_IDENTIFIER).toString());
+            byte languageByte = (byte) language;
+            this.defaultMQProducer.setLanguage(LanguageCode.valueOf(languageByte));
+        }
         String instanceName = properties.getProperty(PropertyKeyConst.InstanceName, this.buildIntanceName());
         this.defaultMQProducer.setInstanceName(instanceName);
         this.defaultMQProducer.setNamesrvAddr(this.getNameServerAddr());

@@ -37,6 +37,7 @@ import org.apache.rocketmq.ons.api.transaction.TransactionStatus;
 import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceConstants;
 import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceDispatcherType;
 import org.apache.rocketmq.ons.open.trace.core.dispatch.impl.AsyncArrayDispatcher;
+import org.apache.rocketmq.remoting.protocol.LanguageCode;
 
 public class TransactionProducerImpl extends ONSClientAbstract implements TransactionProducer {
     private final static InternalLogger LOGGER = ClientLoggerUtil.getClientLogger();
@@ -55,7 +56,11 @@ public class TransactionProducerImpl extends ONSClientAbstract implements Transa
 
         boolean isVipChannelEnabled = Boolean.parseBoolean(properties.getProperty(PropertyKeyConst.isVipChannelEnabled, "false"));
         transactionMQProducer.setVipChannelEnabled(isVipChannelEnabled);
-
+        if (properties.containsKey(PropertyKeyConst.LANGUAGE_IDENTIFIER)) {
+            int language = Integer.valueOf(properties.get(PropertyKeyConst.LANGUAGE_IDENTIFIER).toString());
+            byte languageByte = (byte) language;
+            this.transactionMQProducer.setLanguage(LanguageCode.valueOf(languageByte));
+        }
         String instanceName = properties.getProperty(PropertyKeyConst.InstanceName, this.buildIntanceName());
         this.transactionMQProducer.setInstanceName(instanceName);
 

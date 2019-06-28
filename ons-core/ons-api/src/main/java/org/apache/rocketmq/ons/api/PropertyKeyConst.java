@@ -99,4 +99,6 @@ public class PropertyKeyConst {
 
     public static final String MAX_BATCH_MESSAGE_COUNT = "maxBatchMessageCount";
 
+    public static final String LANGUAGE_IDENTIFIER = "languageIdentifier";
+
 }

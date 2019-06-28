@@ -33,6 +33,7 @@ import org.apache.rocketmq.ons.api.exception.ONSClientException;
 import org.apache.rocketmq.ons.api.impl.tracehook.OnsConsumeMessageHookImpl;
 import org.apache.rocketmq.ons.api.impl.util.ClientLoggerUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.remoting.protocol.LanguageCode;
 
 public class ONSConsumerAbstract extends ONSClientAbstract {
     final static InternalLogger LOGGER = ClientLoggerUtil.getClientLogger();
@@ -81,7 +82,11 @@ public class ONSConsumerAbstract extends ONSClientAbstract {
 
         boolean isVipChannelEnabled = Boolean.parseBoolean(properties.getProperty(PropertyKeyConst.isVipChannelEnabled, "false"));
         this.defaultMQPushConsumer.setVipChannelEnabled(isVipChannelEnabled);
-
+        if (properties.containsKey(PropertyKeyConst.LANGUAGE_IDENTIFIER)) {
+            int language = Integer.valueOf(properties.get(PropertyKeyConst.LANGUAGE_IDENTIFIER).toString());
+            byte languageByte = (byte) language;
+            this.defaultMQPushConsumer.setLanguage(LanguageCode.valueOf(languageByte));
+        }
         String instanceName = properties.getProperty(PropertyKeyConst.InstanceName, this.buildIntanceName());
         this.defaultMQPushConsumer.setInstanceName(instanceName);
         this.defaultMQPushConsumer.setNamesrvAddr(this.getNameServerAddr());
