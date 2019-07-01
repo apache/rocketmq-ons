@@ -51,6 +51,7 @@
     </properties>
     <modules>
         <module>ons-core</module>
+        <module>ons-sample</module>
     </modules>
     <build>
         <plugins>
