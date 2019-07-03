@@ -1,5 +1,5 @@
 ## Overview
- Apache RocketMQ ons is a RocketMQ lightweight client.
+ Apache RocketMQ ONS is a RocketMQ lightweight client.
 
 ----------
 ## Contributing
