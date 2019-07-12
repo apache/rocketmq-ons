@@ -271,8 +271,9 @@
         </dependencies>
     </dependencyManagement>
     <scm>
-        <url>git@gitlab.alibaba-inc.com:middleware/ons.git</url>
-        <connection>scm:git:git@gitlab.alibaba-inc.com:middleware/ons.git</connection>
-        <developerConnection>scm:git:git@gitlab.alibaba-inc.com:middleware/ons.git</developerConnection>
+        <url>git@github.com:apache/rocketmq-ons.git</url>
+        <connection>scm:git:git@github.com:apache/rocketmq-ons.git</connection>
+        <developerConnection>scm:git:git@github.com:apache/rocketmq-ons.git</developerConnection>
+        <tag>HEAD</tag>
     </scm>
 </project>
