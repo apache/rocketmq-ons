@@ -1,12 +1,13 @@
-/**
- * Copyright (C) 2010-2016 Alibaba Group Holding Limited
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,8 +16,6 @@
  */
 package org.apache.rocketmq.ons.sample.producer;
 
-
-import java.util.Date;
 import java.util.Properties;
 import org.apache.rocketmq.ons.api.Message;
 import org.apache.rocketmq.ons.api.ONSFactory;
@@ -37,16 +36,16 @@ public class SimpleMQProducer {
         producerProperties.setProperty(PropertyKeyConst.NAMESRV_ADDR, MQConfig.NAMESRV_ADDR);
         Producer producer = ONSFactory.createProducer(producerProperties);
         producer.start();
-        System.out.println("Producer Started");
+        System.out.printf("Producer Started %n");
 
         for (int i = 0; i < 10; i++) {
             Message message = new Message(MQConfig.TOPIC, MQConfig.TAG, "mq send transaction message test".getBytes());
             try {
                 SendResult sendResult = producer.send(message);
                 assert sendResult != null;
-                System.out.println(new Date() + " Send mq message success! Topic is: " + MQConfig.TOPIC + " msgId is: " + sendResult.getMessageId());
+                System.out.printf("Send mq timer message success! Topic is: %s msgId is: %s%n", MQConfig.TOPIC, sendResult.getMessageId());
             } catch (ONSClientException e) {
-                System.out.println(new Date() + " Send mq message failed! Topic is: " + MQConfig.TOPIC);
+                System.out.printf("Send mq message failed. Topic is: %s%n", MQConfig.TOPIC);
                 e.printStackTrace();
             }
         }
