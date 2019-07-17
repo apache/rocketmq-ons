@@ -23,23 +23,20 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import javax.annotation.Generated;
-
-import org.apache.rocketmq.ons.open.trace.core.dispatch.AsyncDispatcher;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.impl.producer.DefaultMQProducerImpl;
 import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.common.namesrv.TopAddressing;
 import org.apache.rocketmq.logging.InternalLogger;
-
 import org.apache.rocketmq.ons.api.Admin;
 import org.apache.rocketmq.ons.api.PropertyKeyConst;
 import org.apache.rocketmq.ons.api.exception.ONSClientException;
 import org.apache.rocketmq.ons.api.impl.authority.SessionCredentials;
 import org.apache.rocketmq.ons.api.impl.util.ClientLoggerUtil;
 import org.apache.rocketmq.ons.api.impl.util.NameAddrUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.ons.open.trace.core.dispatch.AsyncDispatcher;
 
 import static org.apache.rocketmq.common.UtilAll.getPid;
 
@@ -54,7 +51,7 @@ public abstract class ONSClientAbstract implements Admin {
     protected static final long WSADDR_INTERNAL_TIMEOUTMILLS =
         Long.parseLong(System.getProperty("com.aliyun.openservices.ons.addr.internal.timeoutmills", "3000"));
     protected static final long WSADDR_INTERNET_TIMEOUTMILLS =
-            Long.parseLong(System.getProperty("com.aliyun.openservices.ons.addr.internet.timeoutmills", "5000"));
+        Long.parseLong(System.getProperty("com.aliyun.openservices.ons.addr.internet.timeoutmills", "5000"));
     private final static InternalLogger LOGGER = ClientLoggerUtil.getClientLogger();
     protected final Properties properties;
     protected final SessionCredentials sessionCredentials = new SessionCredentials();
@@ -75,11 +72,13 @@ public abstract class ONSClientAbstract implements Admin {
     public ONSClientAbstract(Properties properties) {
         this.properties = properties;
         this.sessionCredentials.updateContent(properties);
-        if (null == this.sessionCredentials.getAccessKey() || "".equals(this.sessionCredentials.getAccessKey())) {
+        if (this.sessionCredentials.getOnsChannel().equals(ONSChannel.ALIYUN) &&
+            (null == this.sessionCredentials.getAccessKey() || "".equals(this.sessionCredentials.getAccessKey()))) {
             throw new ONSClientException("please set access key");
         }
 
-        if (null == this.sessionCredentials.getSecretKey() || "".equals(this.sessionCredentials.getSecretKey())) {
+        if (this.sessionCredentials.getOnsChannel().equals(ONSChannel.ALIYUN) &&
+            (null == this.sessionCredentials.getSecretKey() || "".equals(this.sessionCredentials.getSecretKey()))) {
             throw new ONSClientException("please set secret key");
         }
 
@@ -87,10 +86,11 @@ public abstract class ONSClientAbstract implements Admin {
             throw new ONSClientException("please set ons channel");
         }
 
-
-
         this.nameServerAddr = getNameSrvAddrFromProperties();
         if (nameServerAddr != null) {
+            return;
+        }
+        if (nameServerAddr == null && !this.sessionCredentials.getOnsChannel().equals(ONSChannel.ALIYUN)) {
             return;
         }
         this.nameServerAddr = fetchNameServerAddr();
@@ -131,7 +131,6 @@ public abstract class ONSClientAbstract implements Admin {
     private String fetchNameServerAddr() {
         String nsAddrs;
 
-
         {
             String property = this.properties.getProperty(PropertyKeyConst.ONSAddr);
             if (property != null) {
@@ -145,7 +144,6 @@ public abstract class ONSClientAbstract implements Admin {
             }
         }
 
-
         {
             TopAddressing top = new TopAddressing(WSADDR_INTERNAL);
             nsAddrs = top.fetchNSAddr(false, WSADDR_INTERNAL_TIMEOUTMILLS);
@@ -154,7 +152,6 @@ public abstract class ONSClientAbstract implements Admin {
                 return nsAddrs;
             }
         }
-
 
         {
             TopAddressing top = new TopAddressing(WSADDR_INTERNET);
@@ -172,15 +169,20 @@ public abstract class ONSClientAbstract implements Admin {
     }
 
     protected String buildIntanceName() {
-        return Integer.toString(UtilAll.getPid())
-            + "#" + this.nameServerAddr.hashCode()
-            + "#" + this.sessionCredentials.getAccessKey().hashCode()
-            + "#" + System.nanoTime();
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(Integer.toString(UtilAll.getPid())).append("#");
+        if (this.nameServerAddr != null) {
+            stringBuilder.append(this.nameServerAddr.hashCode()).append("#");
+        }
+        if (this.sessionCredentials.getAccessKey() != null) {
+            stringBuilder.append(this.sessionCredentials.getAccessKey().hashCode()).append("#");
+        }
+        stringBuilder.append(System.nanoTime());
+        return stringBuilder.toString();
     }
 
     protected String getNamespace() {
         String namespace = null;
-
 
         {
             String nameserverAddr = this.properties.getProperty(PropertyKeyConst.NAMESRV_ADDR);
@@ -191,7 +193,6 @@ public abstract class ONSClientAbstract implements Admin {
                 }
             }
         }
-
 
         {
             String namespaceFromProperty = this.properties.getProperty(PropertyKeyConst.INSTANCE_ID, null);
@@ -236,13 +237,15 @@ public abstract class ONSClientAbstract implements Admin {
 
     @Override
     public void updateCredential(Properties credentialProperties) {
-        if (null == credentialProperties.getProperty(SessionCredentials.AccessKey)
-                || "".equals(credentialProperties.getProperty(SessionCredentials.AccessKey))) {
+        if (this.sessionCredentials.getOnsChannel().equals(ONSChannel.ALIYUN) &&
+            (null == credentialProperties.getProperty(SessionCredentials.AccessKey)
+                || "".equals(credentialProperties.getProperty(SessionCredentials.AccessKey)))) {
             throw new ONSClientException("update credential failed. please set access key.");
         }
 
-        if (null == credentialProperties.getProperty(SessionCredentials.SecretKey)
-                || "".equals(credentialProperties.getProperty(SessionCredentials.SecretKey))) {
+        if (this.sessionCredentials.getOnsChannel().equals(ONSChannel.ALIYUN) &&
+            (null == credentialProperties.getProperty(SessionCredentials.SecretKey)
+                || "".equals(credentialProperties.getProperty(SessionCredentials.SecretKey)))) {
             throw new ONSClientException("update credential failed. please set secret key");
         }
         this.sessionCredentials.updateContent(credentialProperties);
