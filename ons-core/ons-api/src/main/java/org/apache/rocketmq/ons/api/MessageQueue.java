@@ -15,5 +15,30 @@
  * limitations under the License.
  */
 package org.apache.rocketmq.ons.api;
+
 public class MessageQueue {
+    private String topic;
+
+    private String queue;
+
+    public MessageQueue(String topic, String queue) {
+        this.topic = topic;
+        this.queue = queue;
+    }
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
+    public String getQueue() {
+        return queue;
+    }
+
+    public void setQueue(String queue) {
+        this.queue = queue;
+    }
 }
