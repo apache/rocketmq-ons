@@ -231,7 +231,7 @@ public class ProducerImpl extends ONSClientAbstract implements Producer {
                 } else if (e.getCause() instanceof MQBrokerException) {
                     MQBrokerException excep = (MQBrokerException) e.getCause();
                     return new ONSClientException(FAQ.errorMessage(
-                        String.format("Receive a broker exception, Topi=%s, msgId=%s, %s", topic, msgId, excep.getErrorMessage()),
+                        String.format("Receive a broker exception, Topic=%s, msgId=%s, %s", topic, msgId, excep.getErrorMessage()),
                         FAQ.BROKER_RESPONSE_EXCEPTION));
                 }
             } else {
