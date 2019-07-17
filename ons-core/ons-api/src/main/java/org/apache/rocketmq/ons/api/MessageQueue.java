@@ -41,4 +41,38 @@ public class MessageQueue {
     public void setQueue(String queue) {
         this.queue = queue;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((topic == null) ? 0 : topic.hashCode());
+        result = prime * result + ((queue == null) ? 0 : queue.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        MessageQueue other = (MessageQueue) obj;
+        if (queue == null) {
+            if (other.queue != null) {
+                return false;
+            }
+        } else if (!queue.equals(other.queue)) {
+            return false;
+        }
+        if (topic == null) {
+            if (other.topic != null)
+                return false;
+        } else if (!topic.equals(other.topic)) {
+            return false;
+        }
+        return true;
+    }
 }
