@@ -1,4 +1,4 @@
-/*
+package org.apache.rocketmq.ons.api;/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.rocketmq.ons.api;
 
-public interface Consumer extends LifeCycle, Credentials {
+public interface LifeCycle {
+    boolean isStarted();
 
-    void subscribe(final String topic, final String subExpression, final MessageListener listener);
+    boolean isClosed();
 
-    void subscribe(final String topic, final MessageSelector selector, final MessageListener listener);
+    void start();
 
-    void unsubscribe(final String topic);
+    void shutdown();
 }

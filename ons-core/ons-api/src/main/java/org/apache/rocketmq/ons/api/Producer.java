@@ -16,16 +16,10 @@
  */
 package org.apache.rocketmq.ons.api;
 
+import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 
-public interface Producer extends Admin {
-
-
-    @Override
-    void start();
-
-    @Override
-    void shutdown();
+public interface Producer extends LifeCycle, Credentials {
 
     SendResult send(final Message message);
 
@@ -34,4 +28,8 @@ public interface Producer extends Admin {
     void sendAsync(final Message message, final SendCallback sendCallback);
 
     void setCallbackExecutor(final ExecutorService callbackExecutor);
+
+    SendResult send(final Message message, final String shardingKey);
+
+    SendResult send(final Collection<Message> messages);
 }

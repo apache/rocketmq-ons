@@ -17,6 +17,7 @@
 
 package org.apache.rocketmq.ons.api.bean;
 
+import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import org.apache.rocketmq.ons.api.Message;
@@ -94,5 +95,15 @@ public class ProducerBean implements Producer {
     @Override
     public boolean isClosed() {
         return this.producer.isClosed();
+    }
+
+    @Override public SendResult send(Message message, String shardingKey) {
+        //TODO
+        return null;
+    }
+
+    @Override public SendResult send(Collection<Message> messages) {
+        //TODO
+        return null;
     }
 }

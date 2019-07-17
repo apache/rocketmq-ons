@@ -21,4 +21,6 @@ import org.apache.rocketmq.ons.api.Message;
 public interface LocalTransactionChecker {
 
     TransactionStatus check(final Message msg);
+
+
 }

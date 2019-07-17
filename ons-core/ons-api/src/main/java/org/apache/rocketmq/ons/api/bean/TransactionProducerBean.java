@@ -23,7 +23,7 @@ import org.apache.rocketmq.ons.api.ONSFactory;
 import org.apache.rocketmq.ons.api.SendResult;
 import org.apache.rocketmq.ons.api.exception.ONSClientException;
 import org.apache.rocketmq.ons.api.transaction.LocalTransactionChecker;
-import org.apache.rocketmq.ons.api.transaction.LocalTransactionExecuter;
+import org.apache.rocketmq.ons.api.transaction.LocalTransactionExecutor;
 import org.apache.rocketmq.ons.api.transaction.TransactionProducer;
 
 
@@ -63,7 +63,7 @@ public class TransactionProducerBean implements TransactionProducer {
     }
 
     @Override
-    public SendResult send(Message message, LocalTransactionExecuter executer, Object arg) {
+    public SendResult send(Message message, LocalTransactionExecutor executer, Object arg) {
         return this.transactionProducer.send(message, executer, arg);
     }
 

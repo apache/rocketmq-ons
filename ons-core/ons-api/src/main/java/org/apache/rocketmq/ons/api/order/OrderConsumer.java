@@ -17,11 +17,11 @@
 
 package org.apache.rocketmq.ons.api.order;
 
-import org.apache.rocketmq.ons.api.Admin;
+import org.apache.rocketmq.ons.api.Credentials;
+import org.apache.rocketmq.ons.api.LifeCycle;
 import org.apache.rocketmq.ons.api.MessageSelector;
 
-
-public interface OrderConsumer extends Admin {
+public interface OrderConsumer extends LifeCycle, Credentials {
 
     @Override
     void start();

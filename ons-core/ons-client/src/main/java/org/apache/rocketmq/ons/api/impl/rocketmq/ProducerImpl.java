@@ -17,6 +17,7 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
+import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 
@@ -217,6 +218,14 @@ public class ProducerImpl extends ONSClientAbstract implements Producer {
         sendResult.setTopic(rmqSendResult.getMessageQueue().getTopic());
         sendResult.setMessageId(rmqSendResult.getMsgId());
         return sendResult;
+    }
+
+    @Override public SendResult send(Message message, String shardingKey) {
+        return null;
+    }
+
+    @Override public SendResult send(Collection<Message> messages) {
+        return null;
     }
 
     private ONSClientException checkProducerException(String topic, String msgId, Throwable e) {

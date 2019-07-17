@@ -16,11 +16,32 @@
  */
 package org.apache.rocketmq.ons.api;
 
-public interface Consumer extends LifeCycle, Credentials {
+import java.util.Collection;
+import java.util.List;
 
-    void subscribe(final String topic, final String subExpression, final MessageListener listener);
+public interface PullConsumer {
 
-    void subscribe(final String topic, final MessageSelector selector, final MessageListener listener);
+    void subscribe(final Collection<String> topics);
 
-    void unsubscribe(final String topic);
+    void subscribe(final Collection<String> topics, final String subExpression);
+
+    void unsubscribe(final Collection<String> topics);
+
+    List<Message> poll(long timeout);
+
+    void seek(MessageQueue messageQueue, long offset);
+
+    void seekToBeginning(MessageQueue messageQueue);
+
+    void seekToEnd(MessageQueue messageQueuea);
+
+    void pause(Collection<MessageQueue> messageQueues);
+
+    void resume(Collection<MessageQueue> partitions);
+
+    Long offsetForTimestamp(MessageQueue messageQueue, Long timestamp);
+
+    Long committed(MessageQueue messageQueue);
+
+    void commitSync();
 }

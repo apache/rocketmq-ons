@@ -15,12 +15,8 @@
  * limitations under the License.
  */
 package org.apache.rocketmq.ons.api;
+import java.util.Properties;
 
-public interface Consumer extends LifeCycle, Credentials {
-
-    void subscribe(final String topic, final String subExpression, final MessageListener listener);
-
-    void subscribe(final String topic, final MessageSelector selector, final MessageListener listener);
-
-    void unsubscribe(final String topic);
+public interface Credentials {
+    void updateCredential(Properties credentialProperties);
 }

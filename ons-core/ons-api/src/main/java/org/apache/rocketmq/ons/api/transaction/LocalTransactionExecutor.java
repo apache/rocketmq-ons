@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.rocketmq.ons.api;
 
-public interface Consumer extends LifeCycle, Credentials {
+package org.apache.rocketmq.ons.api.transaction;
 
-    void subscribe(final String topic, final String subExpression, final MessageListener listener);
+import org.apache.rocketmq.ons.api.Message;
 
-    void subscribe(final String topic, final MessageSelector selector, final MessageListener listener);
 
-    void unsubscribe(final String topic);
+public interface LocalTransactionExecutor {
+
+    TransactionStatus execute(final Message message, final Object arg);
 }

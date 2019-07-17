@@ -23,7 +23,7 @@ import org.apache.rocketmq.ons.api.ONSFactory;
 import org.apache.rocketmq.ons.api.PropertyKeyConst;
 import org.apache.rocketmq.ons.api.SendResult;
 import org.apache.rocketmq.ons.api.exception.ONSClientException;
-import org.apache.rocketmq.ons.api.transaction.LocalTransactionExecuter;
+import org.apache.rocketmq.ons.api.transaction.LocalTransactionExecutor;
 import org.apache.rocketmq.ons.api.transaction.TransactionProducer;
 import org.apache.rocketmq.ons.api.transaction.TransactionStatus;
 import org.apache.rocketmq.ons.sample.MQConfig;
@@ -44,12 +44,13 @@ public class SimpleTransactionProducer {
 
         for (int i = 0; i < 10; i++) {
             try {
-                SendResult sendResult = transactionProducer.send(message, new LocalTransactionExecuter() {
+                SendResult sendResult = transactionProducer.send(message, new LocalTransactionExecutor() {
                     @Override
                     public TransactionStatus execute(Message msg, Object arg) {
                         System.out.printf("Execute local transaction and return TransactionStatus. %n");
                         return TransactionStatus.CommitTransaction;
                     }
+
                 }, null);
                 assert sendResult != null;
             } catch (ONSClientException e) {

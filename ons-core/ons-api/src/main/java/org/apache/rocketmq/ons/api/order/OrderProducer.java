@@ -17,12 +17,17 @@
 
 package org.apache.rocketmq.ons.api.order;
 
-import org.apache.rocketmq.ons.api.Admin;
+import org.apache.rocketmq.ons.api.Credentials;
+import org.apache.rocketmq.ons.api.LifeCycle;
 import org.apache.rocketmq.ons.api.Message;
+import org.apache.rocketmq.ons.api.Producer;
 import org.apache.rocketmq.ons.api.SendResult;
 
-
-public interface OrderProducer extends Admin {
+/**
+ * This interface will be removed in the year 2021, {@link Producer#send(Message, String)} is recommended
+ */
+@Deprecated
+public interface OrderProducer extends LifeCycle, Credentials {
 
     SendResult send(final Message message, final String shardingKey);
 }
