@@ -16,14 +16,14 @@
  */
 package org.apache.rocketmq.ons.api;
 
-public class MessageQueue {
+public class TopicPartition {
     private String topic;
 
-    private String queue;
+    private String partition;
 
-    public MessageQueue(String topic, String queue) {
+    public TopicPartition(String topic, String partition) {
         this.topic = topic;
-        this.queue = queue;
+        this.partition = partition;
     }
 
     public String getTopic() {
@@ -34,12 +34,12 @@ public class MessageQueue {
         this.topic = topic;
     }
 
-    public String getQueue() {
-        return queue;
+    public String getPartition() {
+        return partition;
     }
 
-    public void setQueue(String queue) {
-        this.queue = queue;
+    public void setPartition(String partition) {
+        this.partition = partition;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class MessageQueue {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((topic == null) ? 0 : topic.hashCode());
-        result = prime * result + ((queue == null) ? 0 : queue.hashCode());
+        result = prime * result + ((partition == null) ? 0 : partition.hashCode());
         return result;
     }
 
@@ -59,12 +59,12 @@ public class MessageQueue {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        MessageQueue other = (MessageQueue) obj;
-        if (queue == null) {
-            if (other.queue != null) {
+        TopicPartition other = (TopicPartition) obj;
+        if (partition == null) {
+            if (other.partition != null) {
                 return false;
             }
-        } else if (!queue.equals(other.queue)) {
+        } else if (!partition.equals(other.partition)) {
             return false;
         }
         if (topic == null) {

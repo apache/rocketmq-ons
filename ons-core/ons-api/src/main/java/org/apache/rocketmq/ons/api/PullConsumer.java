@@ -20,82 +20,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-public interface PullConsumer extends LifeCycle, Credentials {
-    /**
-     * Subscribe to the given list of topics to get dynamically assigned message queues.
-     *
-     * @param topics
-     */
-    void subscribe(final Collection<String> topics);
+public interface PullConsumer {
 
-    /**
-     * Subscribe to the given list of topics to get dynamically assigned message queues with filters.
-     *
-     * @param topics
-     */
-    void subscribe(final Collection<String> topics, final String subExpression);
-
-    /**
-     * Unsubscribe the given list of topics.
-     *
-     * @param topics
-     */
-    void unsubscribe(final Collection<String> topics);
-
-    /**
-     * Fetch data for the topics or partitions specified using subscribe API. It is an error to not have subscribed to
-     * any topics or partitions before polling for data.
-     *
-     * @param timeout
-     * @return
-     */
-    List<Message> poll(long timeout);
-
-    /**
-     * Overrides the fetch offsets that the consumer will use on the next {@link #poll(long)}. If this API is invoked
-     * for the same message queue more than once, the latest offset will be used on the next poll(). Note that you may
-     * lose data if this API is arbitrarily used in the middle of consumption.
-     *
-     * @param messageQueue
-     * @param offset
-     */
-    void seek(MessageQueue messageQueue, long offset);
-
-    /**
-     * Overrides the fetch offsets with the beginning offset in server that the consumer will use on the next {@link
-     * #poll(long)}.
-     *
-     * @param messageQueue
-     */
-    void seekToBeginning(MessageQueue messageQueue);
-
-    /**
-     * Overrides the fetch offsets with the end offset in server that the consumer will use on the next {@link
-     * #poll(long)}.
-     *
-     * @param messageQueue
-     */
-    void seekToEnd(MessageQueue messageQueue);
-
-    /**
-     * Suspend fetching from the requested message queues. Future calls to {@link #poll(long)} will not return any
-     * records from these message queues until they have been resumed using {@link #resume(Collection)}.
-     *
-     * Note that this method does not affect message queue subscription. In particular, it does not cause a group
-     * rebalance.
-     *
-     * @param messageQueues
-     */
-    void pause(Collection<MessageQueue> messageQueues);
-
-    /**
-     * Resume specified message queues which have been paused with {@link #pause(Collection)}. New calls to {@link
-     * #poll(long)} will return records from these partitions if there are any to be fetched. If the message queues were
-     * not previously paused, this method is a no-op.
-     *
-     * @param messageQueues
-     */
-    void resume(Collection<MessageQueue> messageQueues);
+    interface TopicPartitionChangeListener {
+        /**
+         * This method will be invoked in the condition of partition numbers changed, These scenarios occur when the
+         * topic is expanded or shrunk.
+         *
+         * @param topicPartitions
+         */
+        void onChanged(Set<TopicPartition> topicPartitions);
+    }
 
     /**
      * Get metadata about the partitions for a given topic. This method will issue a remote call to the server if it
@@ -104,36 +39,100 @@ public interface PullConsumer extends LifeCycle, Credentials {
      * @param topic
      * @return
      */
-    Set<MessageQueue> messageQueues(String topic);
+    Set<TopicPartition> topicPartitions(String topic);
+
+    /**
+     * Manually assign a list of partitions to this consumer. This interface does not allow for incremental assignment
+     * and will replace the previous assignment (if there is one).
+     *
+     * If auto-commit is enabled, an async commit (based on the old assignment) will be triggered before the new
+     * assignment replaces the old one.
+     *
+     * @param topicPartitions
+     */
+    void assign(Collection<TopicPartition> topicPartitions);
+
+    /**
+     * Register a callback for sensing topic metadata changes.
+     *
+     * @param topic
+     * @param callback
+     */
+    void registerTopicPartitionChangedListener(String topic, TopicPartitionChangeListener callback);
+
+    /**
+     * Fetch data for the topics or partitions specified using assign API. It is an error to not have subscribed to any
+     * topics or partitions before polling for data.
+     *
+     * @param timeout
+     * @return
+     */
+    List<Message> poll(long timeout);
+
+    /**
+     * Overrides the fetch offsets that the consumer will use on the next {@link #poll(long)} }. If this API is invoked
+     * for the same message queue more than once, the latest offset will be used on the next poll(). Note that you may
+     * lose data if this API is arbitrarily used in the middle of consumption.
+     *
+     * @param topicPartition
+     * @param offset
+     */
+    void seek(TopicPartition topicPartition, long offset);
+
+    /**
+     * Overrides the fetch offsets with the beginning offset in server that the consumer will use on the next {@link
+     * #poll(long)} }.
+     *
+     * @param topicPartition
+     */
+    void seekToBeginning(TopicPartition topicPartition);
+
+    /**
+     * Overrides the fetch offsets with the end offset in server that the consumer will use on the next {@link
+     * #poll(long)} }.
+     *
+     * @param topicPartition
+     */
+    void seekToEnd(TopicPartition topicPartition);
+
+    /**
+     * Suspend fetching from the requested message queues. Future calls to {@link #poll(long)} will not return any
+     * records from these message queues until they have been resumed using {@link #resume(Collection)}.
+     *
+     * Note that this method does not affect message queue subscription. In particular, it does not cause a group
+     * rebalance.
+     *
+     * @param topicPartitions
+     */
+    void pause(Collection<TopicPartition> topicPartitions);
+
+    /**
+     * Resume specified message queues which have been paused with {@link #pause(Collection)}. New calls to {@link
+     * #poll(long)} will return records from these partitions if there are any to be fetched. If the message queues were
+     * not previously paused, this method is a no-op.
+     *
+     * @param topicPartitions
+     */
+    void resume(Collection<TopicPartition> topicPartitions);
 
     /**
      * Look up the offsets for the given message queue by timestamp. The returned offset for each message queue is the
      * earliest offset whose timestamp is greater than or equal to the given timestamp in the corresponding message
      * queue.
      *
-     * @param messageQueue
+     * @param topicPartition
      * @param timestamp
      * @return
      */
-    Long offsetForTimestamp(MessageQueue messageQueue, Long timestamp);
+    Long offsetForTimestamp(TopicPartition topicPartition, Long timestamp);
 
     /**
      * Get the last committed offset for the given message queue (whether the commit happened by this process or
      * another). This offset will be used as the position for the consumer in the event of a failure.
      *
-     * @param messageQueue
+     * @param topicPartition
      * @return
      */
-    Long committed(MessageQueue messageQueue);
+    Long committed(TopicPartition topicPartition);
 
-    /**
-     * Commit the last offset that has been stored securely. Should the process fail and restart, this is the offset
-     * that the consumer will recover to. The consumer can either automatically commit offsets periodically;
-     */
-    void commit();
-
-    /**
-     * Wakeup the consumer. This method is thread-safe and is useful in particular to abort a long poll.
-     */
-    void wakeup();
 }
