@@ -98,12 +98,10 @@ public class ProducerBean implements Producer {
     }
 
     @Override public SendResult send(Message message, String shardingKey) {
-        //TODO
         return null;
     }
 
     @Override public SendResult send(Collection<Message> messages) {
-        //TODO
         return null;
     }
 }

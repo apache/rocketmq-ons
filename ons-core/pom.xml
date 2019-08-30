@@ -41,14 +41,12 @@
         <maven.jdoc.skip>true</maven.jdoc.skip>
         <downloadSources>true</downloadSources>
         <!-- compiler settings properties -->
-        <java_source_version>1.6</java_source_version>
-        <java_target_version>1.6</java_target_version>
+        <java_source_version>1.8</java_source_version>
+        <java_target_version>1.8</java_target_version>
         <file_encoding>UTF-8</file_encoding>
         <!-- Always use stable version of RocketMQ -->
         <rocketmq.version>4.5.1</rocketmq.version>
         <auth.version>${project.version}</auth.version>
-        <spring.version>4.1.2.RELEASE</spring.version>
-        <diamond.version>3.7.4</diamond.version>
     </properties>
     <build>
         <plugins>

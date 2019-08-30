@@ -19,6 +19,7 @@ package org.apache.rocketmq.ons.api;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.time.Duration;
 
 public interface PullConsumer {
 
@@ -67,10 +68,10 @@ public interface PullConsumer {
      * @param timeout
      * @return
      */
-    List<Message> poll(long timeout);
+    List<Message> poll(Duration timeout);
 
     /**
-     * Overrides the fetch offsets that the consumer will use on the next {@link #poll(long)} }. If this API is invoked
+     * Overrides the fetch offsets that the consumer will use on the next {@link #poll(Duration)} }. If this API is invoked
      * for the same message queue more than once, the latest offset will be used on the next poll(). Note that you may
      * lose data if this API is arbitrarily used in the middle of consumption.
      *
@@ -81,7 +82,7 @@ public interface PullConsumer {
 
     /**
      * Overrides the fetch offsets with the beginning offset in server that the consumer will use on the next {@link
-     * #poll(long)} }.
+     * #poll(Duration)} }.
      *
      * @param topicPartition
      */
@@ -89,14 +90,14 @@ public interface PullConsumer {
 
     /**
      * Overrides the fetch offsets with the end offset in server that the consumer will use on the next {@link
-     * #poll(long)} }.
+     * #poll(Duration)} }.
      *
      * @param topicPartition
      */
     void seekToEnd(TopicPartition topicPartition);
 
     /**
-     * Suspend fetching from the requested message queues. Future calls to {@link #poll(long)} will not return any
+     * Suspend fetching from the requested message queues. Future calls to {@link #poll(Duration)} will not return any
      * records from these message queues until they have been resumed using {@link #resume(Collection)}.
      *
      * Note that this method does not affect message queue subscription. In particular, it does not cause a group
@@ -108,7 +109,7 @@ public interface PullConsumer {
 
     /**
      * Resume specified message queues which have been paused with {@link #pause(Collection)}. New calls to {@link
-     * #poll(long)} will return records from these partitions if there are any to be fetched. If the message queues were
+     * #poll(Duration)} will return records from these partitions if there are any to be fetched. If the message queues were
      * not previously paused, this method is a no-op.
      *
      * @param topicPartitions
@@ -135,4 +136,8 @@ public interface PullConsumer {
      */
     Long committed(TopicPartition topicPartition);
 
+    /**
+     * Sync commit current consumed offset to server.
+     */
+    void commitSync();
 }
