@@ -26,7 +26,6 @@ import org.apache.rocketmq.ons.api.SendResult;
 /**
  * This interface will be removed in the year 2021, {@link Producer#send(Message, String)} is recommended
  */
-@Deprecated
 public interface OrderProducer extends LifeCycle, Credentials {
 
     SendResult send(final Message message, final String shardingKey);
