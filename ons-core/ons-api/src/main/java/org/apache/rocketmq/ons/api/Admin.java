@@ -16,22 +16,6 @@
  */
 package org.apache.rocketmq.ons.api;
 
-import java.util.Properties;
+public interface Admin extends LifeCycle, Credentials {
 
-
-public interface Admin {
-
-    boolean isStarted();
-
-
-    boolean isClosed();
-
-
-    void start();
-
-
-    void updateCredential(Properties credentialProperties);
-
-
-    void shutdown();
 }

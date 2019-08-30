@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 package org.apache.rocketmq.ons.api;
+public interface LifeCycle {
+    boolean isStarted();
 
-public interface Consumer extends LifeCycle, Credentials {
+    boolean isClosed();
 
-    void subscribe(final String topic, final String subExpression, final MessageListener listener);
+    void start();
 
-    void subscribe(final String topic, final MessageSelector selector, final MessageListener listener);
-
-    void unsubscribe(final String topic);
+    void shutdown();
 }

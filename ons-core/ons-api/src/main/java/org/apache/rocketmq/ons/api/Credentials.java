@@ -14,13 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.rocketmq.ons.api;
+import java.util.Properties;
 
-package org.apache.rocketmq.ons.api.transaction;
-
-import org.apache.rocketmq.ons.api.Message;
-
-
-public interface LocalTransactionExecuter {
-
-    TransactionStatus execute(final Message msg, final Object arg);
+public interface Credentials {
+    void updateCredential(Properties credentialProperties);
 }

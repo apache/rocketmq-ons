@@ -31,7 +31,7 @@ import org.apache.rocketmq.ons.api.PropertyKeyConst;
 import org.apache.rocketmq.ons.api.SendResult;
 import org.apache.rocketmq.ons.api.impl.tracehook.OnsClientSendMessageHookImpl;
 import org.apache.rocketmq.ons.api.impl.util.ClientLoggerUtil;
-import org.apache.rocketmq.ons.api.transaction.LocalTransactionExecuter;
+import org.apache.rocketmq.ons.api.transaction.LocalTransactionExecutor;
 import org.apache.rocketmq.ons.api.transaction.TransactionProducer;
 import org.apache.rocketmq.ons.api.transaction.TransactionStatus;
 import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceConstants;
@@ -123,7 +123,7 @@ public class TransactionProducerImpl extends ONSClientAbstract implements Transa
     }
 
     @Override
-    public SendResult send(final Message message, final LocalTransactionExecuter executer, Object arg) {
+    public SendResult send(final Message message, final LocalTransactionExecutor executer, Object arg) {
         this.checkONSProducerServiceState(this.transactionMQProducer.getDefaultMQProducerImpl());
         org.apache.rocketmq.common.message.Message msgRMQ = ONSUtil.msgConvert(message);
         org.apache.rocketmq.client.producer.TransactionSendResult sendResultRMQ = null;

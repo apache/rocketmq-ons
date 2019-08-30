@@ -17,22 +17,14 @@
 
 package org.apache.rocketmq.ons.api.transaction;
 
-import org.apache.rocketmq.ons.api.Admin;
+import org.apache.rocketmq.ons.api.Credentials;
+import org.apache.rocketmq.ons.api.LifeCycle;
 import org.apache.rocketmq.ons.api.Message;
 import org.apache.rocketmq.ons.api.SendResult;
 
-
-public interface TransactionProducer extends Admin {
-
-    @Override
-    void start();
-
-
-    @Override
-    void shutdown();
-
+public interface TransactionProducer extends LifeCycle, Credentials {
 
     SendResult send(final Message message,
-        final LocalTransactionExecuter executer,
+        final LocalTransactionExecutor executer,
         final Object arg);
 }

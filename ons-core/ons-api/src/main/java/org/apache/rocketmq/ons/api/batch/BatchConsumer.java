@@ -17,9 +17,10 @@
 
 package org.apache.rocketmq.ons.api.batch;
 
-import org.apache.rocketmq.ons.api.Admin;
+import org.apache.rocketmq.ons.api.Credentials;
+import org.apache.rocketmq.ons.api.LifeCycle;
 
-public interface BatchConsumer extends Admin {
+public interface BatchConsumer extends LifeCycle, Credentials {
 
     void subscribe(final String topic, final String subExpression, final BatchMessageListener listener);
 
