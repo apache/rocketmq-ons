@@ -23,6 +23,7 @@ import org.apache.rocketmq.ons.api.ONSFactory;
 import org.apache.rocketmq.ons.api.PropertyKeyConst;
 import org.apache.rocketmq.ons.api.SendResult;
 import org.apache.rocketmq.ons.api.exception.ONSClientException;
+import org.apache.rocketmq.ons.api.impl.rocketmq.TransactionProducerDecorator;
 import org.apache.rocketmq.ons.api.transaction.LocalTransactionExecuter;
 import org.apache.rocketmq.ons.api.transaction.TransactionProducer;
 import org.apache.rocketmq.ons.api.transaction.TransactionStatus;
@@ -37,7 +38,7 @@ public class SimpleTransactionProducer {
         tranProducerProperties.setProperty(PropertyKeyConst.SecretKey, MQConfig.SECRET_KEY);
         tranProducerProperties.setProperty(PropertyKeyConst.NAMESRV_ADDR, MQConfig.NAMESRV_ADDR);
         LocalTransactionCheckerImpl localTransactionChecker = new LocalTransactionCheckerImpl();
-        TransactionProducer transactionProducer = ONSFactory.createTransactionProducer(tranProducerProperties, localTransactionChecker);
+        TransactionProducer transactionProducer = new TransactionProducerDecorator(ONSFactory.createTransactionProducer(tranProducerProperties, localTransactionChecker));
         transactionProducer.start();
 
         Message message = new Message(MQConfig.TOPIC, MQConfig.TAG, "MQ send transaction message test".getBytes());
