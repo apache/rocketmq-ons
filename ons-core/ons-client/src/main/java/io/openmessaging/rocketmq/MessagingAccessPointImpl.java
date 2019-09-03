@@ -21,6 +21,7 @@ import io.openmessaging.Constants;
 import io.openmessaging.Consumer;
 import io.openmessaging.Message;
 import io.openmessaging.MessagingAccessPoint;
+import io.openmessaging.OMSResponseStatus;
 import io.openmessaging.Producer;
 import io.openmessaging.PullConsumer;
 import io.openmessaging.batch.BatchConsumer;
@@ -59,7 +60,7 @@ public class MessagingAccessPointImpl implements MessagingAccessPoint {
     }
 
     @Override public PullConsumer createPullConsumer(Properties properties) {
-        return null;
+        throw OMSResponseStatus.generateException(OMSResponseStatus.STATUS_1101);
     }
 
     @Override
