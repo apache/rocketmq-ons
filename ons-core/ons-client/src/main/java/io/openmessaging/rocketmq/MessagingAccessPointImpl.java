@@ -15,18 +15,24 @@
  * limitations under the License.
  */
 
-package org.apache.rocketmq.ons.api.impl;
+package io.openmessaging.rocketmq;
 
+import io.openmessaging.Constants;
+import io.openmessaging.Consumer;
+import io.openmessaging.Message;
+import io.openmessaging.MessagingAccessPoint;
+import io.openmessaging.Producer;
+import io.openmessaging.PullConsumer;
+import io.openmessaging.batch.BatchConsumer;
+import io.openmessaging.order.OrderConsumer;
+import io.openmessaging.order.OrderProducer;
+import io.openmessaging.transaction.LocalTransactionChecker;
+import io.openmessaging.transaction.TransactionProducer;
+import io.openmessaging.transaction.TransactionStatus;
+import java.util.Properties;
 import org.apache.rocketmq.client.producer.LocalTransactionState;
 import org.apache.rocketmq.client.producer.TransactionCheckListener;
 import org.apache.rocketmq.common.message.MessageExt;
-import java.util.Properties;
-import org.apache.rocketmq.ons.api.Constants;
-import org.apache.rocketmq.ons.api.Consumer;
-import org.apache.rocketmq.ons.api.Message;
-import org.apache.rocketmq.ons.api.ONSFactoryAPI;
-import org.apache.rocketmq.ons.api.Producer;
-import org.apache.rocketmq.ons.api.batch.BatchConsumer;
 import org.apache.rocketmq.ons.api.impl.rocketmq.BatchConsumerImpl;
 import org.apache.rocketmq.ons.api.impl.rocketmq.ConsumerImpl;
 import org.apache.rocketmq.ons.api.impl.rocketmq.ONSUtil;
@@ -34,18 +40,32 @@ import org.apache.rocketmq.ons.api.impl.rocketmq.OrderConsumerImpl;
 import org.apache.rocketmq.ons.api.impl.rocketmq.OrderProducerImpl;
 import org.apache.rocketmq.ons.api.impl.rocketmq.ProducerImpl;
 import org.apache.rocketmq.ons.api.impl.rocketmq.TransactionProducerImpl;
-import org.apache.rocketmq.ons.api.order.OrderConsumer;
-import org.apache.rocketmq.ons.api.order.OrderProducer;
-import org.apache.rocketmq.ons.api.transaction.LocalTransactionChecker;
-import org.apache.rocketmq.ons.api.transaction.TransactionProducer;
-import org.apache.rocketmq.ons.api.transaction.TransactionStatus;
 
-public class ONSFactoryImpl implements ONSFactoryAPI {
+public class MessagingAccessPointImpl implements MessagingAccessPoint {
+
+    private Properties attributes;
+
+    public MessagingAccessPointImpl(Properties attributes) {
+        this.attributes = attributes;
+    }
+
+    @Override
+    public String version() {
+        return "1.1.3";
+    }
+
+    @Override public Properties attributes() {
+        return null;
+    }
+
+    @Override public PullConsumer createPullConsumer(Properties properties) {
+        return null;
+    }
+
     @Override
     public Producer createProducer(final Properties properties) {
         return new ProducerImpl(ONSUtil.extractProperties(properties));
     }
-
 
     @Override
     public Consumer createConsumer(final Properties properties) {
@@ -62,7 +82,6 @@ public class ONSFactoryImpl implements ONSFactoryAPI {
         return new OrderProducerImpl(ONSUtil.extractProperties(properties));
     }
 
-
     @Override
     public OrderConsumer createOrderedConsumer(final Properties properties) {
         return new OrderConsumerImpl(ONSUtil.extractProperties(properties));
@@ -70,7 +89,7 @@ public class ONSFactoryImpl implements ONSFactoryAPI {
 
     @Override
     public TransactionProducer createTransactionProducer(Properties properties,
-                                                         final LocalTransactionChecker checker) {
+        final LocalTransactionChecker checker) {
         return new TransactionProducerImpl(ONSUtil.extractProperties(properties), new TransactionCheckListener() {
             @Override
             public LocalTransactionState checkLocalTransactionState(MessageExt msg) {

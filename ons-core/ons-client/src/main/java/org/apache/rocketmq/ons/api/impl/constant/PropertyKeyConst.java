@@ -14,11 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.rocketmq.ons.api;
+package org.apache.rocketmq.ons.api.impl.constant;
 
-import javax.annotation.Generated;
-
-@Generated("ons-api")
 public class PropertyKeyConst {
 
     public static final String MessageModel = "MessageModel";

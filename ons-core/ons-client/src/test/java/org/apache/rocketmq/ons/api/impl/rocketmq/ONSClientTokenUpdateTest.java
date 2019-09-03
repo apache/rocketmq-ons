@@ -17,26 +17,37 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
+import io.openmessaging.Consumer;
+import io.openmessaging.Message;
+import io.openmessaging.MessagingAccessPoint;
+import io.openmessaging.OMS;
+import io.openmessaging.OMSBuiltinKeys;
+import io.openmessaging.Producer;
+import io.openmessaging.SendResult;
+import io.openmessaging.exception.OMSRuntimeException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import org.apache.rocketmq.ons.api.Consumer;
-import org.apache.rocketmq.ons.api.Message;
-import org.apache.rocketmq.ons.api.ONSFactory;
-import org.apache.rocketmq.ons.api.Producer;
-import org.apache.rocketmq.ons.api.PropertyKeyConst;
-import org.apache.rocketmq.ons.api.SendResult;
-import org.apache.rocketmq.ons.api.exception.ONSClientException;
 import org.apache.rocketmq.ons.api.impl.authority.SessionCredentials;
+import org.apache.rocketmq.ons.api.impl.constant.PropertyKeyConst;
 import org.apache.rocketmq.remoting.netty.NettyRemotingClient;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
 public class ONSClientTokenUpdateTest {
 
     private static final String TOPIC = "STS_TOPIC_TEST_MOLING";
+
+    private MessagingAccessPoint messagingAccessPoint;
+
+    @Before
+    public void init() {
+        messagingAccessPoint = OMS.getMessagingAccessPoint("oms:rocketmq://alice@rocketmq.apache.org/us-east");
+    }
+
 
     @Ignore
     public void testSend() throws InterruptedException {
@@ -62,7 +73,7 @@ public class ONSClientTokenUpdateTest {
             }
         };
 
-        Producer producer = ONSFactory.createProducer(buildProps(
+        Producer producer = messagingAccessPoint.createProducer(buildProps(
             "ak",
             "sk",
             "token",
@@ -88,15 +99,15 @@ public class ONSClientTokenUpdateTest {
 
     @Test
     public void test_ConsumerImpl() throws NoSuchFieldException, IllegalAccessException {
-        Consumer consumer = ONSFactory.createConsumer(buildProps("ak", "sk", "token", ONSChannel.ALIYUN.name()));
+        Consumer consumer = messagingAccessPoint.createConsumer(buildProps("ak", "sk", "token", ONSChannel.ALIYUN.name()));
         ONSConsumerAbstract subImpl = (ONSConsumerAbstract) consumer;
         consumer.start();
 
         Assert.assertTrue(subImpl.defaultMQPushConsumer.getDefaultMQPushConsumerImpl().getmQClientFactory().getMQClientAPIImpl().getRemotingClient() instanceof NettyRemotingClient);
         NettyRemotingClient remotingClient =
             (NettyRemotingClient) subImpl.defaultMQPushConsumer.getDefaultMQPushConsumerImpl().getmQClientFactory().getMQClientAPIImpl().getRemotingClient();
-        Assert.assertTrue(remotingClient.getRPCHooks() instanceof ClientRPCHook);
-        ClientRPCHook clientRPCHook = (ClientRPCHook) remotingClient.getRPCHooks();
+        Assert.assertTrue(remotingClient.getRPCHooks() instanceof List);
+        ClientRPCHook clientRPCHook = (ClientRPCHook) remotingClient.getRPCHooks().get(0);
         Field field = ClientRPCHook.class.getDeclaredField("sessionCredentials");
         field.setAccessible(true);
         SessionCredentials credentials = (SessionCredentials) field.get(clientRPCHook);
@@ -116,15 +127,15 @@ public class ONSClientTokenUpdateTest {
 
     @Test
     public void test_ProducerImpl() throws NoSuchFieldException, IllegalAccessException {
-        Producer producer = ONSFactory.createProducer(buildProps("ak", "sk", "token", ONSChannel.ALIYUN.name()));
+        Producer producer = messagingAccessPoint.createProducer(buildProps("ak", "sk", "token", ONSChannel.ALIYUN.name()));
         ProducerImpl subImpl = (ProducerImpl) producer;
         producer.start();
 
         Assert.assertTrue(subImpl.getDefaultMQProducer().getDefaultMQProducerImpl().getmQClientFactory().getMQClientAPIImpl().getRemotingClient() instanceof NettyRemotingClient);
         NettyRemotingClient remotingClient =
             (NettyRemotingClient) subImpl.getDefaultMQProducer().getDefaultMQProducerImpl().getmQClientFactory().getMQClientAPIImpl().getRemotingClient();
-        Assert.assertTrue(remotingClient.getRPCHooks() instanceof ClientRPCHook);
-        ClientRPCHook clientRPCHook = (ClientRPCHook) remotingClient.getRPCHooks();
+        Assert.assertTrue(remotingClient.getRPCHooks() instanceof List);
+        ClientRPCHook clientRPCHook = (ClientRPCHook) remotingClient.getRPCHooks().get(0);
         Field field = ClientRPCHook.class.getDeclaredField("sessionCredentials");
         field.setAccessible(true);
         SessionCredentials credentials = (SessionCredentials) field.get(clientRPCHook);
@@ -144,15 +155,15 @@ public class ONSClientTokenUpdateTest {
 
     @Test
     public void test_ConsumerImpl_updateNull() throws NoSuchFieldException, IllegalAccessException {
-        Consumer consumer = ONSFactory.createConsumer(buildProps("ak", "sk", "token", ONSChannel.ALIYUN.name()));
+        Consumer consumer = messagingAccessPoint.createConsumer(buildProps("ak", "sk", "token", ONSChannel.ALIYUN.name()));
         ONSConsumerAbstract subImpl = (ONSConsumerAbstract) consumer;
         consumer.start();
 
         Assert.assertTrue(subImpl.defaultMQPushConsumer.getDefaultMQPushConsumerImpl().getmQClientFactory().getMQClientAPIImpl().getRemotingClient() instanceof NettyRemotingClient);
         NettyRemotingClient remotingClient =
             (NettyRemotingClient) subImpl.defaultMQPushConsumer.getDefaultMQPushConsumerImpl().getmQClientFactory().getMQClientAPIImpl().getRemotingClient();
-        Assert.assertTrue(remotingClient.getRPCHooks() instanceof ClientRPCHook);
-        ClientRPCHook clientRPCHook = (ClientRPCHook) remotingClient.getRPCHooks();
+        Assert.assertTrue(remotingClient.getRPCHooks() instanceof List);
+        ClientRPCHook clientRPCHook = (ClientRPCHook) remotingClient.getRPCHooks().get(0);
         Field field = ClientRPCHook.class.getDeclaredField("sessionCredentials");
         field.setAccessible(true);
         SessionCredentials credentials = (SessionCredentials) field.get(clientRPCHook);
@@ -165,7 +176,7 @@ public class ONSClientTokenUpdateTest {
         try {
             consumer.updateCredential(buildProps("nak", "", "ntoken", ONSChannel.CLOUD.name()));
         } catch (Exception e) {
-            Assert.assertTrue(e instanceof ONSClientException);
+            Assert.assertTrue(e instanceof OMSRuntimeException);
         }
 
         Assert.assertEquals("ak", credentials.getAccessKey());

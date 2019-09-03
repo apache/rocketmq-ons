@@ -16,10 +16,10 @@
  */
 package org.apache.rocketmq.ons.sample.consumer;
 
-import org.apache.rocketmq.ons.api.Action;
-import org.apache.rocketmq.ons.api.ConsumeContext;
-import org.apache.rocketmq.ons.api.Message;
-import org.apache.rocketmq.ons.api.MessageListener;
+import io.openmessaging.Action;
+import io.openmessaging.ConsumeContext;
+import io.openmessaging.Message;
+import io.openmessaging.MessageListener;
 
 public class MessageListenerImpl implements MessageListener {
     @Override

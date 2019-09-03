@@ -17,22 +17,20 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
+import io.openmessaging.MessageSelector;
+import io.openmessaging.exception.OMSRuntimeException;
 import java.util.Properties;
-
-import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceConstants;
-import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceDispatcherType;
-import org.apache.rocketmq.ons.open.trace.core.dispatch.impl.AsyncArrayDispatcher;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.logging.InternalLogger;
-
-import org.apache.rocketmq.ons.api.MessageSelector;
-import org.apache.rocketmq.ons.api.PropertyKeyConst;
-import org.apache.rocketmq.ons.api.exception.ONSClientException;
+import org.apache.rocketmq.ons.api.impl.constant.PropertyKeyConst;
 import org.apache.rocketmq.ons.api.impl.tracehook.OnsConsumeMessageHookImpl;
 import org.apache.rocketmq.ons.api.impl.util.ClientLoggerUtil;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceConstants;
+import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceDispatcherType;
+import org.apache.rocketmq.ons.open.trace.core.dispatch.impl.AsyncArrayDispatcher;
 import org.apache.rocketmq.remoting.protocol.LanguageCode;
 
 public class ONSConsumerAbstract extends ONSClientAbstract {
@@ -52,7 +50,7 @@ public class ONSConsumerAbstract extends ONSClientAbstract {
 
         String consumerGroup = properties.getProperty(PropertyKeyConst.GROUP_ID, properties.getProperty(PropertyKeyConst.ConsumerId));
         if (StringUtils.isEmpty(consumerGroup)) {
-            throw new ONSClientException("ConsumerId property is null");
+            throw new OMSRuntimeException("ConsumerId property is null");
         }
 
         this.defaultMQPushConsumer =
@@ -146,7 +144,7 @@ public class ONSConsumerAbstract extends ONSClientAbstract {
         try {
             this.defaultMQPushConsumer.subscribe(topic, subExpression);
         } catch (MQClientException e) {
-            throw new ONSClientException("defaultMQPushConsumer subscribe exception", e);
+            throw new OMSRuntimeException("defaultMQPushConsumer subscribe exception", e);
         }
     }
 
@@ -155,7 +153,7 @@ public class ONSConsumerAbstract extends ONSClientAbstract {
         String type = org.apache.rocketmq.common.filter.ExpressionType.TAG;
         if (selector != null) {
             if (selector.getType() == null) {
-                throw new ONSClientException("Expression type is null!");
+                throw new OMSRuntimeException("Expression type is null!");
             }
             subExpression = selector.getSubExpression();
             type = selector.getType().name();
@@ -167,13 +165,13 @@ public class ONSConsumerAbstract extends ONSClientAbstract {
         } else if (org.apache.rocketmq.common.filter.ExpressionType.TAG.equals(type)) {
             messageSelector = org.apache.rocketmq.client.consumer.MessageSelector.byTag(subExpression);
         } else {
-            throw new ONSClientException(String.format("Expression type %s is unknown!", type));
+            throw new OMSRuntimeException(String.format("Expression type %s is unknown!", type));
         }
 
         try {
             this.defaultMQPushConsumer.subscribe(topic, messageSelector);
         } catch (MQClientException e) {
-            throw new ONSClientException("Consumer subscribe exception", e);
+            throw new OMSRuntimeException("Consumer subscribe exception", e);
         }
     }
 
@@ -189,7 +187,7 @@ public class ONSConsumerAbstract extends ONSClientAbstract {
                 super.start();
             }
         } catch (Exception e) {
-            throw new ONSClientException(e.getMessage());
+            throw new OMSRuntimeException(e.getMessage());
         }
     }
 

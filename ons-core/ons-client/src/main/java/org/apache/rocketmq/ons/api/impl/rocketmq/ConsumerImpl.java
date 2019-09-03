@@ -17,11 +17,20 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
+import io.openmessaging.Action;
+import io.openmessaging.Constants;
+import io.openmessaging.ConsumeContext;
+import io.openmessaging.Consumer;
+import io.openmessaging.Message;
+import io.openmessaging.MessageListener;
+import io.openmessaging.MessageSelector;
+import io.openmessaging.PropertyValueConst;
+import io.openmessaging.exception.OMSRuntimeException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
 
+import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Generated;
 
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
@@ -29,17 +38,7 @@ import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.apache.rocketmq.common.protocol.heartbeat.MessageModel;
-
-import org.apache.rocketmq.ons.api.Action;
-import org.apache.rocketmq.ons.api.Constants;
-import org.apache.rocketmq.ons.api.ConsumeContext;
-import org.apache.rocketmq.ons.api.Consumer;
-import org.apache.rocketmq.ons.api.Message;
-import org.apache.rocketmq.ons.api.MessageListener;
-import org.apache.rocketmq.ons.api.MessageSelector;
-import org.apache.rocketmq.ons.api.PropertyKeyConst;
-import org.apache.rocketmq.ons.api.PropertyValueConst;
-import org.apache.rocketmq.ons.api.exception.ONSClientException;
+import org.apache.rocketmq.ons.api.impl.constant.PropertyKeyConst;
 
 @Generated("ons-client")
 public class ConsumerImpl extends ONSConsumerAbstract implements Consumer {
@@ -64,11 +63,11 @@ public class ConsumerImpl extends ONSConsumerAbstract implements Consumer {
     @Override
     public void subscribe(String topic, String subExpression, MessageListener listener) {
         if (null == topic) {
-            throw new ONSClientException("topic is null");
+            throw new OMSRuntimeException("topic is null");
         }
 
         if (null == listener) {
-            throw new ONSClientException("listener is null");
+            throw new OMSRuntimeException("listener is null");
         }
         this.subscribeTable.put(topic, listener);
         super.subscribe(topic, subExpression);
@@ -77,11 +76,11 @@ public class ConsumerImpl extends ONSConsumerAbstract implements Consumer {
     @Override
     public void subscribe(final String topic, final MessageSelector selector, final MessageListener listener) {
         if (null == topic) {
-            throw new ONSClientException("topic is null");
+            throw new OMSRuntimeException("topic is null");
         }
 
         if (null == listener) {
-            throw new ONSClientException("listener is null");
+            throw new OMSRuntimeException("listener is null");
         }
         this.subscribeTable.put(topic, listener);
         super.subscribe(topic, selector);
@@ -111,7 +110,7 @@ public class ConsumerImpl extends ONSConsumerAbstract implements Consumer {
             }
             MessageListener listener = ConsumerImpl.this.subscribeTable.get(msg.getTopic());
             if (null == listener) {
-                throw new ONSClientException("MessageListener is null");
+                throw new OMSRuntimeException("MessageListener is null");
             }
 
             final ConsumeContext context = new ConsumeContext();

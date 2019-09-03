@@ -16,25 +16,27 @@
  */
 package org.apache.rocketmq.ons.sample.consumer;
 
+import io.openmessaging.Message;
+import io.openmessaging.MessagingAccessPoint;
+import io.openmessaging.OMS;
+import io.openmessaging.order.ConsumeOrderContext;
+import io.openmessaging.order.MessageOrderListener;
+import io.openmessaging.order.OrderAction;
+import io.openmessaging.order.OrderConsumer;
 import java.util.Properties;
-import org.apache.rocketmq.ons.api.Message;
-import org.apache.rocketmq.ons.api.ONSFactory;
-import org.apache.rocketmq.ons.api.PropertyKeyConst;
-import org.apache.rocketmq.ons.api.order.ConsumeOrderContext;
-import org.apache.rocketmq.ons.api.order.MessageOrderListener;
-import org.apache.rocketmq.ons.api.order.OrderAction;
-import org.apache.rocketmq.ons.api.order.OrderConsumer;
+import org.apache.rocketmq.ons.api.impl.constant.PropertyKeyConst;
 import org.apache.rocketmq.ons.sample.MQConfig;
 
 public class SimpleOrderConsumer {
 
     public static void main(String[] args) {
+        MessagingAccessPoint messagingAccessPoint = OMS.getMessagingAccessPoint("oms:rocketmq://alice@rocketmq.apache.org/us-east");
         Properties consumerProperties = new Properties();
         consumerProperties.setProperty(PropertyKeyConst.GROUP_ID, MQConfig.ORDER_GROUP_ID);
         consumerProperties.setProperty(PropertyKeyConst.AccessKey, MQConfig.ACCESS_KEY);
         consumerProperties.setProperty(PropertyKeyConst.SecretKey, MQConfig.SECRET_KEY);
         consumerProperties.setProperty(PropertyKeyConst.NAMESRV_ADDR, MQConfig.NAMESRV_ADDR);
-        OrderConsumer consumer = ONSFactory.createOrderedConsumer(consumerProperties);
+        OrderConsumer consumer = messagingAccessPoint.createOrderedConsumer(consumerProperties);
         consumer.subscribe(MQConfig.ORDER_TOPIC, MQConfig.TAG, new MessageOrderListener() {
 
             @Override

@@ -30,13 +30,13 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.rocketmq</groupId>
-            <artifactId>ons-api</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
+            <artifactId>ons-client</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.rocketmq</groupId>
-            <artifactId>ons-client</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
+            <groupId>io.openmessaging</groupId>
+            <artifactId>openmessaging-api</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

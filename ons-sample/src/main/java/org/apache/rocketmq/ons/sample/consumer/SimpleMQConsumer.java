@@ -16,22 +16,24 @@
  */
 package org.apache.rocketmq.ons.sample.consumer;
 
-
+import io.openmessaging.Consumer;
+import io.openmessaging.MessagingAccessPoint;
+import io.openmessaging.OMS;
 import java.util.Properties;
-import org.apache.rocketmq.ons.api.Consumer;
-import org.apache.rocketmq.ons.api.ONSFactory;
-import org.apache.rocketmq.ons.api.PropertyKeyConst;
+import org.apache.rocketmq.ons.api.impl.constant.PropertyKeyConst;
 import org.apache.rocketmq.ons.sample.MQConfig;
 
 public class SimpleMQConsumer {
 
     public static void main(String[] args) {
+        MessagingAccessPoint messagingAccessPoint = OMS.getMessagingAccessPoint("oms:rocketmq://alice@rocketmq.apache.org/us-east");
+
         Properties consumerProperties = new Properties();
         consumerProperties.setProperty(PropertyKeyConst.GROUP_ID, MQConfig.GROUP_ID);
         consumerProperties.setProperty(PropertyKeyConst.AccessKey, MQConfig.ACCESS_KEY);
         consumerProperties.setProperty(PropertyKeyConst.SecretKey, MQConfig.SECRET_KEY);
         consumerProperties.setProperty(PropertyKeyConst.NAMESRV_ADDR, MQConfig.NAMESRV_ADDR);
-        Consumer consumer = ONSFactory.createConsumer(consumerProperties);
+        Consumer consumer = messagingAccessPoint.createConsumer(consumerProperties);
         consumer.subscribe(MQConfig.TOPIC, MQConfig.TAG, new MessageListenerImpl());
         consumer.start();
         System.out.printf("Consumer start success. %n");

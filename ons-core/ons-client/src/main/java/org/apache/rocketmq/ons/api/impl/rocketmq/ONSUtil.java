@@ -17,6 +17,9 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
+import io.openmessaging.Message;
+import io.openmessaging.MessageAccessor;
+import io.openmessaging.exception.OMSRuntimeException;
 import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -24,19 +27,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-
 import org.apache.rocketmq.common.message.MessageConst;
 import org.apache.rocketmq.common.message.MessageExt;
-
-import org.apache.rocketmq.ons.api.Message;
-import org.apache.rocketmq.ons.api.MessageAccessor;
-import org.apache.rocketmq.ons.api.exception.ONSClientException;
 
 public class ONSUtil {
     private static final Set<String> RESERVED_KEY_SET_RMQ = new HashSet<String>();
 
     private static final Set<String> RESERVED_KEY_SET_ONS = new HashSet<String>();
-
 
     static {
 
@@ -68,11 +65,10 @@ public class ONSUtil {
         RESERVED_KEY_SET_ONS.add(Message.SystemPropKey.SHARDINGKEY);
     }
 
-
     public static org.apache.rocketmq.common.message.Message msgConvert(Message message) {
         org.apache.rocketmq.common.message.Message msgRMQ = new org.apache.rocketmq.common.message.Message();
         if (message == null) {
-            throw new ONSClientException("\'message\' is null");
+            throw new OMSRuntimeException("\'message\' is null");
         }
 
         if (message.getTopic() != null) {
@@ -102,7 +98,7 @@ public class ONSUtil {
                 Entry<Object, Object> next = it.next();
                 if (!RESERVED_KEY_SET_ONS.contains(next.getKey().toString())) {
                     org.apache.rocketmq.common.message.MessageAccessor.putProperty(msgRMQ, next.getKey().toString(),
-                            next.getValue().toString());
+                        next.getValue().toString());
                 }
             }
         }
@@ -114,7 +110,7 @@ public class ONSUtil {
                 Entry<Object, Object> next = it.next();
                 if (!RESERVED_KEY_SET_RMQ.contains(next.getKey().toString())) {
                     org.apache.rocketmq.common.message.MessageAccessor.putProperty(msgRMQ, next.getKey().toString(),
-                            next.getValue().toString());
+                        next.getValue().toString());
                 }
             }
         }

@@ -17,6 +17,12 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
+import io.openmessaging.Constants;
+import io.openmessaging.Message;
+import io.openmessaging.SendResult;
+import io.openmessaging.transaction.LocalTransactionExecutor;
+import io.openmessaging.transaction.TransactionProducer;
+import io.openmessaging.transaction.TransactionStatus;
 import java.util.Properties;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.client.exception.MQClientException;
@@ -25,15 +31,9 @@ import org.apache.rocketmq.client.producer.TransactionCheckListener;
 import org.apache.rocketmq.client.producer.TransactionMQProducer;
 import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.logging.InternalLogger;
-import org.apache.rocketmq.ons.api.Constants;
-import org.apache.rocketmq.ons.api.Message;
-import org.apache.rocketmq.ons.api.PropertyKeyConst;
-import org.apache.rocketmq.ons.api.SendResult;
+import org.apache.rocketmq.ons.api.impl.constant.PropertyKeyConst;
 import org.apache.rocketmq.ons.api.impl.tracehook.OnsClientSendMessageHookImpl;
 import org.apache.rocketmq.ons.api.impl.util.ClientLoggerUtil;
-import org.apache.rocketmq.ons.api.transaction.LocalTransactionExecuter;
-import org.apache.rocketmq.ons.api.transaction.TransactionProducer;
-import org.apache.rocketmq.ons.api.transaction.TransactionStatus;
 import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceConstants;
 import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceDispatcherType;
 import org.apache.rocketmq.ons.open.trace.core.dispatch.impl.AsyncArrayDispatcher;
@@ -123,7 +123,7 @@ public class TransactionProducerImpl extends ONSClientAbstract implements Transa
     }
 
     @Override
-    public SendResult send(final Message message, final LocalTransactionExecuter executer, Object arg) {
+    public SendResult send(final Message message, final LocalTransactionExecutor executer, Object arg) {
         this.checkONSProducerServiceState(this.transactionMQProducer.getDefaultMQProducerImpl());
         org.apache.rocketmq.common.message.Message msgRMQ = ONSUtil.msgConvert(message);
         org.apache.rocketmq.client.producer.TransactionSendResult sendResultRMQ = null;
