@@ -46,7 +46,7 @@ public class SessionCredentials {
     private String securityToken;
     private String signature;
     private String signatureMethod;
-    private ONSChannel onsChannel = ONSChannel.CLOUD;
+    private ONSChannel onsChannel = ONSChannel.ALIYUN;
 
     public SessionCredentials() {
         String keyContent = null;
