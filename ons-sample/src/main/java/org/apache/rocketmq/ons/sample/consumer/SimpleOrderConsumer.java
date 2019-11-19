@@ -16,7 +16,6 @@
  */
 package org.apache.rocketmq.ons.sample.consumer;
 
-
 import io.openmessaging.api.Message;
 import io.openmessaging.api.MessagingAccessPoint;
 import io.openmessaging.api.OMS;
@@ -31,13 +30,23 @@ import org.apache.rocketmq.ons.sample.MQConfig;
 public class SimpleOrderConsumer {
 
     public static void main(String[] args) {
-        MessagingAccessPoint messagingAccessPoint = OMS.getMessagingAccessPoint("oms:rocketmq://alice@rocketmq.apache.org/us-east");
+        MessagingAccessPoint messagingAccessPoint = OMS.getMessagingAccessPoint("oms:rocketmq://127.0.0.1:9876");
         Properties consumerProperties = new Properties();
         consumerProperties.setProperty(PropertyKeyConst.GROUP_ID, MQConfig.ORDER_GROUP_ID);
         consumerProperties.setProperty(PropertyKeyConst.AccessKey, MQConfig.ACCESS_KEY);
         consumerProperties.setProperty(PropertyKeyConst.SecretKey, MQConfig.SECRET_KEY);
-        consumerProperties.setProperty(PropertyKeyConst.NAMESRV_ADDR, MQConfig.NAMESRV_ADDR);
         OrderConsumer consumer = messagingAccessPoint.createOrderedConsumer(consumerProperties);
+
+        /*
+         * Alternatively, you can use the ONSFactory to create instance directly.
+         * <pre>
+         * {@code
+         * consumerProperties.setProperty(PropertyKeyConst.NAMESRV_ADDR, MQConfig.NAMESRV_ADDR);
+         * OrderConsumer consumer  = ONSFactory.createOrderedConsumer(consumerProperties);
+         * }
+         * </pre>
+         */
+
         consumer.subscribe(MQConfig.ORDER_TOPIC, MQConfig.TAG, new MessageOrderListener() {
 
             @Override
@@ -54,5 +63,6 @@ public class SimpleOrderConsumer {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        consumer.shutdown();
     }
 }

@@ -29,13 +29,24 @@ import org.apache.rocketmq.ons.sample.MQConfig;
 
 public class MQTimerProducer {
     public static void main(String[] args) {
-        MessagingAccessPoint messagingAccessPoint = OMS.getMessagingAccessPoint("oms:rocketmq://47.107.167.190:9876");
+        MessagingAccessPoint messagingAccessPoint = OMS.getMessagingAccessPoint("oms:rocketmq://127.0.0.1:9876");
 
         Properties producerProperties = new Properties();
         producerProperties.setProperty(PropertyKeyConst.GROUP_ID, MQConfig.GROUP_ID);
         producerProperties.setProperty(PropertyKeyConst.AccessKey, MQConfig.ACCESS_KEY);
         producerProperties.setProperty(PropertyKeyConst.SecretKey, MQConfig.SECRET_KEY);
         Producer producer = messagingAccessPoint.createProducer(producerProperties);
+
+        /*
+         * Alternatively, you can use the ONSFactory to create instance directly.
+         * <pre>
+         * {@code
+         * producerProperties.setProperty(PropertyKeyConst.NAMESRV_ADDR, MQConfig.NAMESRV_ADDR);
+         * OrderProducer producer = ONSFactory.createOrderProducer(producerProperties);
+         * }
+         * </pre>
+         */
+
         producer.start();
         System.out.printf("Producer Started. %n");
 

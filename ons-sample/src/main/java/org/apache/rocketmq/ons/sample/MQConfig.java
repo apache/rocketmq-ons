@@ -31,6 +31,6 @@ public class MQConfig {
     /**
      * NAMESRV_ADDR
      */
-    public static final String NAMESRV_ADDR = "47.107.167.190:9876";
+    public static final String NAMESRV_ADDR = "127.0.0.1:9876";
 
 }

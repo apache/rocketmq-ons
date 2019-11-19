@@ -16,7 +16,6 @@
  */
 package org.apache.rocketmq.ons.sample.producer;
 
-
 import io.openmessaging.api.Message;
 import io.openmessaging.api.MessagingAccessPoint;
 import io.openmessaging.api.OMS;
@@ -30,14 +29,25 @@ import org.apache.rocketmq.ons.sample.MQConfig;
 public class SimpleOrderProducer {
 
     public static void main(String[] args) {
-        MessagingAccessPoint messagingAccessPoint = OMS.getMessagingAccessPoint("oms:rocketmq://alice@47.107.167.190/us-east");
+        MessagingAccessPoint messagingAccessPoint = OMS.getMessagingAccessPoint("oms:rocketmq://127.0.0.1:9876");
 
         Properties producerProperties = new Properties();
         producerProperties.setProperty(PropertyKeyConst.GROUP_ID, MQConfig.ORDER_GROUP_ID);
         producerProperties.setProperty(PropertyKeyConst.AccessKey, MQConfig.ACCESS_KEY);
         producerProperties.setProperty(PropertyKeyConst.SecretKey, MQConfig.SECRET_KEY);
-        producerProperties.setProperty(PropertyKeyConst.NAMESRV_ADDR, MQConfig.NAMESRV_ADDR);
         OrderProducer producer = messagingAccessPoint.createOrderProducer(producerProperties);
+
+
+        /*
+         * Alternatively, you can use the ONSFactory to create instance directly.
+         * <pre>
+         * {@code
+         * producerProperties.setProperty(PropertyKeyConst.NAMESRV_ADDR, MQConfig.NAMESRV_ADDR);
+         * OrderProducer producer = ONSFactory.createOrderProducer(producerProperties);
+         * }
+         * </pre>
+         */
+
         producer.start();
         System.out.printf("Producer Started. %n");
 
@@ -55,5 +65,6 @@ public class SimpleOrderProducer {
                 e.printStackTrace();
             }
         }
+        producer.shutdown();
     }
 }

@@ -16,12 +16,10 @@
  */
 package org.apache.rocketmq.ons.sample.producer;
 
-
 import io.openmessaging.api.Message;
 import io.openmessaging.api.MessagingAccessPoint;
 import io.openmessaging.api.OMS;
 import io.openmessaging.api.SendResult;
-import io.openmessaging.api.exception.OMSRuntimeException;
 import io.openmessaging.api.transaction.LocalTransactionExecuter;
 import io.openmessaging.api.transaction.TransactionProducer;
 import io.openmessaging.api.transaction.TransactionStatus;
@@ -34,15 +32,25 @@ import org.apache.rocketmq.ons.sample.MQConfig;
 public class SimpleTransactionProducer {
 
     public static void main(String[] args) {
-        MessagingAccessPoint messagingAccessPoint = OMS.getMessagingAccessPoint("oms:rocketmq://alice@rocketmq.apache.org/us-east");
+        MessagingAccessPoint messagingAccessPoint = OMS.getMessagingAccessPoint("oms:rocketmq://127.0.0.1:9876");
 
         Properties tranProducerProperties = new Properties();
         tranProducerProperties.setProperty(PropertyKeyConst.GROUP_ID, MQConfig.GROUP_ID);
         tranProducerProperties.setProperty(PropertyKeyConst.AccessKey, MQConfig.ACCESS_KEY);
         tranProducerProperties.setProperty(PropertyKeyConst.SecretKey, MQConfig.SECRET_KEY);
-        tranProducerProperties.setProperty(PropertyKeyConst.NAMESRV_ADDR, MQConfig.NAMESRV_ADDR);
         LocalTransactionCheckerImpl localTransactionChecker = new LocalTransactionCheckerImpl();
         TransactionProducer transactionProducer = messagingAccessPoint.createTransactionProducer(tranProducerProperties, localTransactionChecker);
+
+        /*
+         * Alternatively, you can use the ONSFactory to create instance directly.
+         * <pre>
+         * {@code
+         * producerProperties.setProperty(PropertyKeyConst.NAMESRV_ADDR, MQConfig.NAMESRV_ADDR);
+         * TransactionProducer producer = ONSFactory.createTransactionProducer(tranProducerProperties, localTransactionChecker);
+         * }
+         * </pre>
+         */
+
         transactionProducer.start();
 
         Message message = new Message(MQConfig.TOPIC, MQConfig.TAG, "MQ send transaction message test".getBytes());
