@@ -17,9 +17,9 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
-import io.openmessaging.Message;
-import io.openmessaging.MessageAccessor;
-import io.openmessaging.exception.OMSRuntimeException;
+
+import io.openmessaging.api.Message;
+import io.openmessaging.api.MessageAccessor;
 import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -29,6 +29,7 @@ import java.util.Properties;
 import java.util.Set;
 import org.apache.rocketmq.common.message.MessageConst;
 import org.apache.rocketmq.common.message.MessageExt;
+import org.apache.rocketmq.ons.api.exception.ONSClientException;
 
 public class ONSUtil {
     private static final Set<String> RESERVED_KEY_SET_RMQ = new HashSet<String>();
@@ -68,7 +69,7 @@ public class ONSUtil {
     public static org.apache.rocketmq.common.message.Message msgConvert(Message message) {
         org.apache.rocketmq.common.message.Message msgRMQ = new org.apache.rocketmq.common.message.Message();
         if (message == null) {
-            throw new OMSRuntimeException("\'message\' is null");
+            throw new ONSClientException("\'message\' is null");
         }
 
         if (message.getTopic() != null) {

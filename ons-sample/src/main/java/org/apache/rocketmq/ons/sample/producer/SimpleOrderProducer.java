@@ -16,20 +16,21 @@
  */
 package org.apache.rocketmq.ons.sample.producer;
 
-import io.openmessaging.Message;
-import io.openmessaging.MessagingAccessPoint;
-import io.openmessaging.OMS;
-import io.openmessaging.SendResult;
-import io.openmessaging.exception.OMSRuntimeException;
-import io.openmessaging.order.OrderProducer;
+
+import io.openmessaging.api.Message;
+import io.openmessaging.api.MessagingAccessPoint;
+import io.openmessaging.api.OMS;
+import io.openmessaging.api.SendResult;
+import io.openmessaging.api.exception.OMSRuntimeException;
+import io.openmessaging.api.order.OrderProducer;
 import java.util.Properties;
-import org.apache.rocketmq.ons.api.impl.constant.PropertyKeyConst;
+import org.apache.rocketmq.ons.api.PropertyKeyConst;
 import org.apache.rocketmq.ons.sample.MQConfig;
 
 public class SimpleOrderProducer {
 
     public static void main(String[] args) {
-        MessagingAccessPoint messagingAccessPoint = OMS.getMessagingAccessPoint("oms:rocketmq://alice@rocketmq.apache.org/us-east");
+        MessagingAccessPoint messagingAccessPoint = OMS.getMessagingAccessPoint("oms:rocketmq://alice@47.107.167.190/us-east");
 
         Properties producerProperties = new Properties();
         producerProperties.setProperty(PropertyKeyConst.GROUP_ID, MQConfig.ORDER_GROUP_ID);

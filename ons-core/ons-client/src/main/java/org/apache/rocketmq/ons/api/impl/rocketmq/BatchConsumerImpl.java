@@ -17,14 +17,13 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
-import io.openmessaging.Action;
-import io.openmessaging.Constants;
-import io.openmessaging.ConsumeContext;
-import io.openmessaging.Message;
-import io.openmessaging.PropertyValueConst;
-import io.openmessaging.batch.BatchConsumer;
-import io.openmessaging.batch.BatchMessageListener;
-import io.openmessaging.exception.OMSRuntimeException;
+
+import io.openmessaging.api.Action;
+import io.openmessaging.api.ConsumeContext;
+import io.openmessaging.api.Message;
+
+import io.openmessaging.api.batch.BatchConsumer;
+import io.openmessaging.api.batch.BatchMessageListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +38,10 @@ import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
 import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.apache.rocketmq.common.protocol.heartbeat.MessageModel;
-import org.apache.rocketmq.ons.api.impl.constant.PropertyKeyConst;
+import org.apache.rocketmq.ons.api.Constants;
+import org.apache.rocketmq.ons.api.PropertyKeyConst;
+import org.apache.rocketmq.ons.api.PropertyValueConst;
+import org.apache.rocketmq.ons.api.exception.ONSClientException;
 
 @Generated("ons-client")
 public class BatchConsumerImpl extends ONSConsumerAbstract implements BatchConsumer {
@@ -73,11 +75,11 @@ public class BatchConsumerImpl extends ONSConsumerAbstract implements BatchConsu
     @Override
     public void subscribe(String topic, String subExpression, BatchMessageListener listener) {
         if (null == topic) {
-            throw new OMSRuntimeException("topic is null");
+            throw new ONSClientException("topic is null");
         }
 
         if (null == listener) {
-            throw new OMSRuntimeException("listener is null");
+            throw new ONSClientException("listener is null");
         }
         this.subscribeTable.put(topic, listener);
         super.subscribe(topic, subExpression);
@@ -109,7 +111,7 @@ public class BatchConsumerImpl extends ONSConsumerAbstract implements BatchConsu
 
             BatchMessageListener listener = BatchConsumerImpl.this.subscribeTable.get(msgList.get(0).getTopic());
             if (null == listener) {
-                throw new OMSRuntimeException("BatchMessageListener is null");
+                throw new ONSClientException("BatchMessageListener is null");
             }
 
             final ConsumeContext context = new ConsumeContext();

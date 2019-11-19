@@ -14,17 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.rocketmq.ons.sample.consumer;
 
-import io.openmessaging.api.Action;
-import io.openmessaging.api.ConsumeContext;
-import io.openmessaging.api.Message;
-import io.openmessaging.api.MessageListener;
+package org.apache.rocketmq.ons.api;
 
-public class MessageListenerImpl implements MessageListener {
-    @Override
-    public Action consume(Message message, ConsumeContext consumeContext) {
-        System.out.printf("Receive message, Topic is: %s,  MsgId is: %s%n", message.getTopic(), message.getMsgID());
-        return Action.CommitMessage;
-    }
+public class Constants {
+    public static final String TRANSACTION_ID = "__transactionId__";
 }

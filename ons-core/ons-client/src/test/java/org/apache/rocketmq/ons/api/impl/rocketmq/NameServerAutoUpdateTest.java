@@ -17,14 +17,15 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
-import io.openmessaging.Consumer;
-import io.openmessaging.MessagingAccessPoint;
-import io.openmessaging.OMS;
-import io.openmessaging.Producer;
-import io.openmessaging.exception.OMSRuntimeException;
-import io.openmessaging.order.OrderProducer;
+
+import io.openmessaging.api.Consumer;
+import io.openmessaging.api.MessagingAccessPoint;
+import io.openmessaging.api.OMS;
+import io.openmessaging.api.Producer;
+import io.openmessaging.api.order.OrderProducer;
 import java.util.Properties;
-import org.apache.rocketmq.ons.api.impl.constant.PropertyKeyConst;
+import org.apache.rocketmq.ons.api.PropertyKeyConst;
+import org.apache.rocketmq.ons.api.exception.ONSClientException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
@@ -51,7 +52,7 @@ public class NameServerAutoUpdateTest {
 
     @org.junit.Test
     public void testNamesrv_setOnsAddr_invalid() {
-        expectedException.expect(OMSRuntimeException.class);
+        expectedException.expect(ONSClientException.class);
         expectedException.expectMessage("onsAddr " + "xxx");
 
         Properties prop = buildProps();

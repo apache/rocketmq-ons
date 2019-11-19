@@ -17,9 +17,9 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
-import io.openmessaging.Credentials;
-import io.openmessaging.LifeCycle;
-import io.openmessaging.exception.OMSRuntimeException;
+
+import io.openmessaging.api.Credentials;
+import io.openmessaging.api.LifeCycle;
 import java.util.Properties;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -33,8 +33,9 @@ import org.apache.rocketmq.client.impl.producer.DefaultMQProducerImpl;
 import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.common.namesrv.TopAddressing;
 import org.apache.rocketmq.logging.InternalLogger;
+import org.apache.rocketmq.ons.api.PropertyKeyConst;
+import org.apache.rocketmq.ons.api.exception.ONSClientException;
 import org.apache.rocketmq.ons.api.impl.authority.SessionCredentials;
-import org.apache.rocketmq.ons.api.impl.constant.PropertyKeyConst;
 import org.apache.rocketmq.ons.api.impl.util.ClientLoggerUtil;
 import org.apache.rocketmq.ons.api.impl.util.NameAddrUtils;
 import org.apache.rocketmq.ons.open.trace.core.dispatch.AsyncDispatcher;
@@ -75,16 +76,16 @@ public abstract class ONSClientAbstract implements LifeCycle, Credentials {
         this.sessionCredentials.updateContent(properties);
         if (this.sessionCredentials.getOnsChannel().equals(ONSChannel.ALIYUN) &&
             (null == this.sessionCredentials.getAccessKey() || "".equals(this.sessionCredentials.getAccessKey()))) {
-            throw new OMSRuntimeException("please set access key");
+            throw new ONSClientException("please set access key");
         }
 
         if (this.sessionCredentials.getOnsChannel().equals(ONSChannel.ALIYUN) &&
             (null == this.sessionCredentials.getSecretKey() || "".equals(this.sessionCredentials.getSecretKey()))) {
-            throw new OMSRuntimeException("please set secret key");
+            throw new ONSClientException("please set secret key");
         }
 
         if (null == this.sessionCredentials.getOnsChannel()) {
-            throw new OMSRuntimeException("please set ons channel");
+            throw new ONSClientException("please set ons channel");
         }
 
         this.nameServerAddr = getNameSrvAddrFromProperties();
@@ -96,7 +97,7 @@ public abstract class ONSClientAbstract implements LifeCycle, Credentials {
         }
         this.nameServerAddr = fetchNameServerAddr();
         if (null == nameServerAddr) {
-            throw new OMSRuntimeException(FAQ.errorMessage("Can not find name server, May be your network problem.", FAQ.FIND_NS_FAILED));
+            throw new ONSClientException(FAQ.errorMessage("Can not find name server, May be your network problem.", FAQ.FIND_NS_FAILED));
         }
 
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
@@ -140,7 +141,7 @@ public abstract class ONSClientAbstract implements LifeCycle, Credentials {
                     LOGGER.info("connected to user-defined ons addr server, {} success, {}", property, nsAddrs);
                     return nsAddrs;
                 } else {
-                    throw new OMSRuntimeException(FAQ.errorMessage("Can not find name server with onsAddr " + property, FAQ.FIND_NS_FAILED));
+                    throw new ONSClientException(FAQ.errorMessage("Can not find name server with onsAddr " + property, FAQ.FIND_NS_FAILED));
                 }
             }
         }
@@ -209,14 +210,14 @@ public abstract class ONSClientAbstract implements LifeCycle, Credentials {
     protected void checkONSProducerServiceState(DefaultMQProducerImpl producer) {
         switch (producer.getServiceState()) {
             case CREATE_JUST:
-                throw new OMSRuntimeException(
+                throw new ONSClientException(
                     FAQ.errorMessage(String.format("You do not have start the producer[" + getPid() + "], %s", producer.getServiceState()),
                         FAQ.SERVICE_STATE_WRONG));
             case SHUTDOWN_ALREADY:
-                throw new OMSRuntimeException(FAQ.errorMessage(String.format("Your producer has been shut down, %s", producer.getServiceState()),
+                throw new ONSClientException(FAQ.errorMessage(String.format("Your producer has been shut down, %s", producer.getServiceState()),
                     FAQ.SERVICE_STATE_WRONG));
             case START_FAILED:
-                throw new OMSRuntimeException(FAQ.errorMessage(
+                throw new ONSClientException(FAQ.errorMessage(
                     String.format("When you start your service throws an exception, %s", producer.getServiceState()), FAQ.SERVICE_STATE_WRONG));
             case RUNNING:
                 break;
@@ -241,13 +242,13 @@ public abstract class ONSClientAbstract implements LifeCycle, Credentials {
         if (this.sessionCredentials.getOnsChannel().equals(ONSChannel.ALIYUN) &&
             (null == credentialProperties.getProperty(SessionCredentials.AccessKey)
                 || "".equals(credentialProperties.getProperty(SessionCredentials.AccessKey)))) {
-            throw new OMSRuntimeException("update credential failed. please set access key.");
+            throw new ONSClientException("update credential failed. please set access key.");
         }
 
         if (this.sessionCredentials.getOnsChannel().equals(ONSChannel.ALIYUN) &&
             (null == credentialProperties.getProperty(SessionCredentials.SecretKey)
                 || "".equals(credentialProperties.getProperty(SessionCredentials.SecretKey)))) {
-            throw new OMSRuntimeException("update credential failed. please set secret key");
+            throw new ONSClientException("update credential failed. please set secret key");
         }
         this.sessionCredentials.updateContent(credentialProperties);
     }

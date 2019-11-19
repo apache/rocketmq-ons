@@ -17,13 +17,13 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
-import io.openmessaging.Message;
-import io.openmessaging.MessageSelector;
-import io.openmessaging.exception.OMSRuntimeException;
-import io.openmessaging.order.ConsumeOrderContext;
-import io.openmessaging.order.MessageOrderListener;
-import io.openmessaging.order.OrderAction;
-import io.openmessaging.order.OrderConsumer;
+
+import io.openmessaging.api.Message;
+import io.openmessaging.api.MessageSelector;
+import io.openmessaging.api.order.ConsumeOrderContext;
+import io.openmessaging.api.order.MessageOrderListener;
+import io.openmessaging.api.order.OrderAction;
+import io.openmessaging.api.order.OrderConsumer;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,7 +33,8 @@ import org.apache.rocketmq.client.consumer.listener.ConsumeOrderlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly;
 import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.common.message.MessageExt;
-import org.apache.rocketmq.ons.api.impl.constant.PropertyKeyConst;
+import org.apache.rocketmq.ons.api.PropertyKeyConst;
+import org.apache.rocketmq.ons.api.exception.ONSClientException;
 
 public class OrderConsumerImpl extends ONSConsumerAbstract implements OrderConsumer {
     private final ConcurrentHashMap<String, MessageOrderListener> subscribeTable = new ConcurrentHashMap<String, MessageOrderListener>();
@@ -58,11 +59,11 @@ public class OrderConsumerImpl extends ONSConsumerAbstract implements OrderConsu
     @Override
     public void subscribe(String topic, String subExpression, MessageOrderListener listener) {
         if (null == topic) {
-            throw new OMSRuntimeException("topic is null");
+            throw new ONSClientException("topic is null");
         }
 
         if (null == listener) {
-            throw new OMSRuntimeException("listener is null");
+            throw new ONSClientException("listener is null");
         }
         this.subscribeTable.put(topic, listener);
         super.subscribe(topic, subExpression);
@@ -71,11 +72,11 @@ public class OrderConsumerImpl extends ONSConsumerAbstract implements OrderConsu
     @Override
     public void subscribe(final String topic, final MessageSelector selector, final MessageOrderListener listener) {
         if (null == topic) {
-            throw new OMSRuntimeException("topic is null");
+            throw new ONSClientException("topic is null");
         }
 
         if (null == listener) {
-            throw new OMSRuntimeException("listener is null");
+            throw new ONSClientException("listener is null");
         }
         this.subscribeTable.put(topic, listener);
         super.subscribe(topic, selector);
@@ -91,7 +92,7 @@ public class OrderConsumerImpl extends ONSConsumerAbstract implements OrderConsu
 
             MessageOrderListener listener = OrderConsumerImpl.this.subscribeTable.get(msg.getTopic());
             if (null == listener) {
-                throw new OMSRuntimeException("MessageOrderListener is null");
+                throw new ONSClientException("MessageOrderListener is null");
             }
 
             final ConsumeOrderContext context = new ConsumeOrderContext();

@@ -20,7 +20,7 @@ public class MQConfig {
     /**
      * RocketMQ config
      */
-    public static final String TOPIC = "xxxx";
+    public static final String TOPIC = "TopicTest";
     public static final String GROUP_ID = "GID-xxxx";
     public static final String ORDER_TOPIC = "xxxx";
     public static final String ORDER_GROUP_ID = "GID-xxxx";
@@ -31,6 +31,6 @@ public class MQConfig {
     /**
      * NAMESRV_ADDR
      */
-    public static final String NAMESRV_ADDR = "xxxxxx";
+    public static final String NAMESRV_ADDR = "47.107.167.190:9876";
 
 }

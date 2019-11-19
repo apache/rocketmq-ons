@@ -17,10 +17,10 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
-import io.openmessaging.Message;
-import io.openmessaging.SendResult;
-import io.openmessaging.exception.OMSRuntimeException;
-import io.openmessaging.order.OrderProducer;
+
+import io.openmessaging.api.Message;
+import io.openmessaging.api.SendResult;
+import io.openmessaging.api.order.OrderProducer;
 import java.util.List;
 import java.util.Properties;
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +29,8 @@ import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.common.message.MessageQueue;
 import org.apache.rocketmq.logging.InternalLogger;
 
-import org.apache.rocketmq.ons.api.impl.constant.PropertyKeyConst;
+import org.apache.rocketmq.ons.api.PropertyKeyConst;
+import org.apache.rocketmq.ons.api.exception.ONSClientException;
 import org.apache.rocketmq.ons.api.impl.tracehook.OnsClientSendMessageHookImpl;
 import org.apache.rocketmq.ons.api.impl.util.ClientLoggerUtil;
 import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceConstants;
@@ -43,7 +44,7 @@ public class OrderProducerImpl extends ONSClientAbstract implements OrderProduce
 
     public OrderProducerImpl(final Properties properties) {
         super(properties);
-        String producerGroup = properties.getProperty(PropertyKeyConst.GROUP_ID, properties.getProperty(PropertyKeyConst.ProducerId));
+        String producerGroup = properties.getProperty(PropertyKeyConst.GROUP_ID, properties.getProperty(PropertyKeyConst.GROUP_ID));
         if (StringUtils.isEmpty(producerGroup)) {
             producerGroup = "__ONS_PRODUCER_DEFAULT_GROUP";
         }
@@ -109,7 +110,7 @@ public class OrderProducerImpl extends ONSClientAbstract implements OrderProduce
                 super.start();
             }
         } catch (Exception e) {
-            throw new OMSRuntimeException(e.getMessage());
+            throw new ONSClientException(e.getMessage());
         }
     }
 
@@ -124,7 +125,7 @@ public class OrderProducerImpl extends ONSClientAbstract implements OrderProduce
     @Override
     public SendResult send(final Message message, final String shardingKey) {
         if (UtilAll.isBlank(shardingKey)) {
-            throw new OMSRuntimeException("\'shardingKey\' is blank.");
+            throw new ONSClientException("\'shardingKey\' is blank.");
         }
         message.setShardingKey(shardingKey);
         this.checkONSProducerServiceState(this.defaultMQProducer.getDefaultMQProducerImpl());
@@ -148,7 +149,7 @@ public class OrderProducerImpl extends ONSClientAbstract implements OrderProduce
             sendResult.setMessageId(sendResultRMQ.getMsgId());
             return sendResult;
         } catch (Exception e) {
-            throw new OMSRuntimeException("defaultMQProducer send order exception", e);
+            throw new ONSClientException("defaultMQProducer send order exception", e);
         }
     }
 }

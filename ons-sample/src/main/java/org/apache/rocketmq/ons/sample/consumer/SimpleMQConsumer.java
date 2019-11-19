@@ -16,11 +16,12 @@
  */
 package org.apache.rocketmq.ons.sample.consumer;
 
-import io.openmessaging.Consumer;
-import io.openmessaging.MessagingAccessPoint;
-import io.openmessaging.OMS;
+
+import io.openmessaging.api.Consumer;
+import io.openmessaging.api.MessagingAccessPoint;
+import io.openmessaging.api.OMS;
 import java.util.Properties;
-import org.apache.rocketmq.ons.api.impl.constant.PropertyKeyConst;
+import org.apache.rocketmq.ons.api.PropertyKeyConst;
 import org.apache.rocketmq.ons.sample.MQConfig;
 
 public class SimpleMQConsumer {

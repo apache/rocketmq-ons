@@ -17,20 +17,20 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
-import io.openmessaging.Consumer;
-import io.openmessaging.Message;
-import io.openmessaging.MessagingAccessPoint;
-import io.openmessaging.OMS;
-import io.openmessaging.OMSBuiltinKeys;
-import io.openmessaging.Producer;
-import io.openmessaging.SendResult;
-import io.openmessaging.exception.OMSRuntimeException;
+
+import io.openmessaging.api.Consumer;
+import io.openmessaging.api.Message;
+import io.openmessaging.api.MessagingAccessPoint;
+import io.openmessaging.api.OMS;
+import io.openmessaging.api.Producer;
+import io.openmessaging.api.SendResult;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import org.apache.rocketmq.ons.api.PropertyKeyConst;
+import org.apache.rocketmq.ons.api.exception.ONSClientException;
 import org.apache.rocketmq.ons.api.impl.authority.SessionCredentials;
-import org.apache.rocketmq.ons.api.impl.constant.PropertyKeyConst;
 import org.apache.rocketmq.remoting.netty.NettyRemotingClient;
 import org.junit.Assert;
 import org.junit.Before;
@@ -176,7 +176,7 @@ public class ONSClientTokenUpdateTest {
         try {
             consumer.updateCredential(buildProps("nak", "", "ntoken", ONSChannel.CLOUD.name()));
         } catch (Exception e) {
-            Assert.assertTrue(e instanceof OMSRuntimeException);
+            Assert.assertTrue(e instanceof ONSClientException);
         }
 
         Assert.assertEquals("ak", credentials.getAccessKey());
@@ -187,8 +187,7 @@ public class ONSClientTokenUpdateTest {
 
     private static Properties buildProps(String ak, String sk, String token, String channel) {
         Properties properties = new Properties();
-        properties.put(PropertyKeyConst.ConsumerId, "CID_STS_TEST_MOLING");
-        properties.put(PropertyKeyConst.ProducerId, "PID_STS_TEST_MOLING");
+        properties.put(PropertyKeyConst.GROUP_ID, "CID_STS_TEST_MOLING");
         properties.put(PropertyKeyConst.AccessKey, ak);
         properties.put(PropertyKeyConst.SecretKey, sk);
         properties.put(PropertyKeyConst.SecurityToken, token);

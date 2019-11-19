@@ -16,15 +16,16 @@
  */
 package org.apache.rocketmq.ons.sample.consumer;
 
-import io.openmessaging.Message;
-import io.openmessaging.MessagingAccessPoint;
-import io.openmessaging.OMS;
-import io.openmessaging.order.ConsumeOrderContext;
-import io.openmessaging.order.MessageOrderListener;
-import io.openmessaging.order.OrderAction;
-import io.openmessaging.order.OrderConsumer;
+
+import io.openmessaging.api.Message;
+import io.openmessaging.api.MessagingAccessPoint;
+import io.openmessaging.api.OMS;
+import io.openmessaging.api.order.ConsumeOrderContext;
+import io.openmessaging.api.order.MessageOrderListener;
+import io.openmessaging.api.order.OrderAction;
+import io.openmessaging.api.order.OrderConsumer;
 import java.util.Properties;
-import org.apache.rocketmq.ons.api.impl.constant.PropertyKeyConst;
+import org.apache.rocketmq.ons.api.PropertyKeyConst;
 import org.apache.rocketmq.ons.sample.MQConfig;
 
 public class SimpleOrderConsumer {

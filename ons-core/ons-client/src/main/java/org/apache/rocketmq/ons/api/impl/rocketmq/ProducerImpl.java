@@ -17,19 +17,14 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
-import io.openmessaging.Message;
-import io.openmessaging.OnExceptionContext;
-import io.openmessaging.Producer;
-import io.openmessaging.SendCallback;
-import io.openmessaging.SendResult;
-import io.openmessaging.exception.OMSRuntimeException;
+import io.openmessaging.api.Message;
+import io.openmessaging.api.OnExceptionContext;
+import io.openmessaging.api.Producer;
+import io.openmessaging.api.SendCallback;
+import io.openmessaging.api.SendResult;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
-
-import org.apache.rocketmq.ons.api.impl.constant.PropertyKeyConst;
-import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceConstants;
-import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceDispatcherType;
-import org.apache.rocketmq.ons.open.trace.core.dispatch.impl.AsyncArrayDispatcher;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.client.exception.MQBrokerException;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
@@ -37,13 +32,15 @@ import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.common.message.MessageClientIDSetter;
 import org.apache.rocketmq.common.protocol.ResponseCode;
 import org.apache.rocketmq.logging.InternalLogger;
-import org.apache.rocketmq.remoting.exception.RemotingConnectException;
-import org.apache.rocketmq.remoting.exception.RemotingTimeoutException;
-
-
+import org.apache.rocketmq.ons.api.PropertyKeyConst;
+import org.apache.rocketmq.ons.api.exception.ONSClientException;
 import org.apache.rocketmq.ons.api.impl.tracehook.OnsClientSendMessageHookImpl;
 import org.apache.rocketmq.ons.api.impl.util.ClientLoggerUtil;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceConstants;
+import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceDispatcherType;
+import org.apache.rocketmq.ons.open.trace.core.dispatch.impl.AsyncArrayDispatcher;
+import org.apache.rocketmq.remoting.exception.RemotingConnectException;
+import org.apache.rocketmq.remoting.exception.RemotingTimeoutException;
 import org.apache.rocketmq.remoting.protocol.LanguageCode;
 
 public class ProducerImpl extends ONSClientAbstract implements Producer {
@@ -53,7 +50,7 @@ public class ProducerImpl extends ONSClientAbstract implements Producer {
     public ProducerImpl(final Properties properties) {
         super(properties);
 
-        String producerGroup = properties.getProperty(PropertyKeyConst.GROUP_ID, properties.getProperty(PropertyKeyConst.ProducerId));
+        String producerGroup = properties.getProperty(PropertyKeyConst.GROUP_ID, properties.getProperty(PropertyKeyConst.GROUP_ID));
         if (StringUtils.isEmpty(producerGroup)) {
             producerGroup = "__ONS_PRODUCER_DEFAULT_GROUP";
         }
@@ -123,7 +120,7 @@ public class ProducerImpl extends ONSClientAbstract implements Producer {
                 super.start();
             }
         } catch (Exception e) {
-            throw new OMSRuntimeException(e.getMessage());
+            throw new ONSClientException(e.getMessage());
         }
     }
 
@@ -199,10 +196,10 @@ public class ProducerImpl extends ONSClientAbstract implements Producer {
 
             @Override
             public void onException(Throwable e) {
-                //String topic = new String(message.getTopic());
-                //String msgId = new String(message.getMsgID());
+                String topic = new String(message.getTopic());
+                String msgId = new String(message.getMsgID());
                 LOGGER.error(String.format("Send message async Exception, %s", message), e);
-                OMSRuntimeException onsEx = checkProducerException(message.getTopic(), message.getMsgID(), e);
+                ONSClientException onsEx = checkProducerException(topic, msgId, e);
                 OnExceptionContext context = new OnExceptionContext();
                 context.setTopic(message.getTopic());
                 context.setMessageId(message.getMsgID());
@@ -221,39 +218,34 @@ public class ProducerImpl extends ONSClientAbstract implements Producer {
         return sendResult;
     }
 
-    @Override
-    public SendResult send(Message message, String shardingKey) {
-        return null;
-    }
-
-    private OMSRuntimeException checkProducerException(String topic, String msgId, Throwable e) {
+    private ONSClientException checkProducerException(String topic, String msgId, Throwable e) {
         if (e instanceof MQClientException) {
             if (e.getCause() != null) {
                 if (e.getCause() instanceof RemotingConnectException) {
-                    return new OMSRuntimeException(
+                    return new ONSClientException(
                         FAQ.errorMessage(String.format("Connect broker failed, Topic=%s, msgId=%s", topic, msgId), FAQ.CONNECT_BROKER_FAILED));
                 } else if (e.getCause() instanceof RemotingTimeoutException) {
-                    return new OMSRuntimeException(FAQ.errorMessage(String.format("Send message to broker timeout, %dms, Topic=%s, msgId=%s",
+                    return new ONSClientException(FAQ.errorMessage(String.format("Send message to broker timeout, %dms, Topic=%s, msgId=%s",
                         this.defaultMQProducer.getSendMsgTimeout(), topic, msgId), FAQ.SEND_MSG_TO_BROKER_TIMEOUT));
                 } else if (e.getCause() instanceof MQBrokerException) {
                     MQBrokerException excep = (MQBrokerException) e.getCause();
-                    return new OMSRuntimeException(FAQ.errorMessage(
+                    return new ONSClientException(FAQ.errorMessage(
                         String.format("Receive a broker exception, Topic=%s, msgId=%s, %s", topic, msgId, excep.getErrorMessage()),
                         FAQ.BROKER_RESPONSE_EXCEPTION));
                 }
             } else {
                 MQClientException excep = (MQClientException) e;
                 if (-1 == excep.getResponseCode()) {
-                    return new OMSRuntimeException(
+                    return new ONSClientException(
                         FAQ.errorMessage(String.format("Topic does not exist, Topic=%s, msgId=%s", topic, msgId), FAQ.TOPIC_ROUTE_NOT_EXIST));
                 } else if (ResponseCode.MESSAGE_ILLEGAL == excep.getResponseCode()) {
-                    return new OMSRuntimeException(
+                    return new ONSClientException(
                         FAQ.errorMessage(String.format("ONS Client check message exception, Topic=%s, msgId=%s", topic, msgId),
                             FAQ.CLIENT_CHECK_MSG_EXCEPTION));
                 }
             }
         }
 
-        return new OMSRuntimeException("defaultMQProducer send exception", e);
+        return new ONSClientException("defaultMQProducer send exception", e);
     }
 }

@@ -16,17 +16,19 @@
  */
 package org.apache.rocketmq.ons.sample.producer;
 
-import io.openmessaging.Message;
-import io.openmessaging.MessagingAccessPoint;
-import io.openmessaging.OMS;
-import io.openmessaging.SendResult;
-import io.openmessaging.exception.OMSRuntimeException;
-import io.openmessaging.transaction.LocalTransactionExecutor;
-import io.openmessaging.transaction.TransactionProducer;
-import io.openmessaging.transaction.TransactionStatus;
+
+import io.openmessaging.api.Message;
+import io.openmessaging.api.MessagingAccessPoint;
+import io.openmessaging.api.OMS;
+import io.openmessaging.api.SendResult;
+import io.openmessaging.api.exception.OMSRuntimeException;
+import io.openmessaging.api.transaction.LocalTransactionExecuter;
+import io.openmessaging.api.transaction.TransactionProducer;
+import io.openmessaging.api.transaction.TransactionStatus;
 import java.util.Date;
 import java.util.Properties;
-import org.apache.rocketmq.ons.api.impl.constant.PropertyKeyConst;
+import org.apache.rocketmq.ons.api.PropertyKeyConst;
+import org.apache.rocketmq.ons.api.exception.ONSClientException;
 import org.apache.rocketmq.ons.sample.MQConfig;
 
 public class SimpleTransactionProducer {
@@ -47,7 +49,7 @@ public class SimpleTransactionProducer {
 
         for (int i = 0; i < 10; i++) {
             try {
-                SendResult sendResult = transactionProducer.send(message, new LocalTransactionExecutor() {
+                SendResult sendResult = transactionProducer.send(message, new LocalTransactionExecuter() {
                     @Override
                     public TransactionStatus execute(Message msg, Object arg) {
                         System.out.printf("Execute local transaction and return TransactionStatus. %n");
@@ -55,7 +57,7 @@ public class SimpleTransactionProducer {
                     }
                 }, null);
                 assert sendResult != null;
-            } catch (OMSRuntimeException e) {
+            } catch (ONSClientException e) {
                 System.out.printf(new Date() + " Send mq message failed! Topic is: %s%n", MQConfig.TOPIC);
                 e.printStackTrace();
             }

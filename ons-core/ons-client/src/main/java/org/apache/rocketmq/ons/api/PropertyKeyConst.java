@@ -14,23 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.rocketmq.ons.api.impl.constant;
+package org.apache.rocketmq.ons.api;
 
-public class PropertyKeyConst {
+import io.openmessaging.api.OMSBuiltinKeys;
+
+public class PropertyKeyConst implements OMSBuiltinKeys {
 
     public static final String MessageModel = "MessageModel";
-
-    /**
-     * Deprecated, replaced with GROUP_ID
-     */
-    @Deprecated
-    public static final String ProducerId = "ProducerId";
-
-    /**
-     * Deprecated, replaced with GROUP_ID
-     */
-    @Deprecated
-    public static final String ConsumerId = "ConsumerId";
 
     public static final String GROUP_ID = "GROUP_ID";
 
@@ -42,8 +32,10 @@ public class PropertyKeyConst {
 
     public static final String SendMsgTimeoutMillis = "SendMsgTimeoutMillis";
 
+    @Deprecated
     public static final String ONSAddr = "ONSAddr";
 
+    @Deprecated
     public static final String NAMESRV_ADDR = "NAMESRV_ADDR";
 
     public static final String ConsumeThreadNums = "ConsumeThreadNums";
@@ -72,30 +64,21 @@ public class PropertyKeyConst {
 
     public static final String InstanceName = "InstanceName";
 
-    public static final String MsgTraceSwitch = "MsgTraceSwitch";
-
-    public static final String MqttMessageId = "mqttMessageId";
-
-    public static final String MqttMessage = "mqttMessage";
-
-    public static final String MqttPublishRetain = "mqttRetain";
-
-    public static final String MqttPublishDubFlag = "mqttPublishDubFlag";
-
-    public static final String MqttSecondTopic = "mqttSecondTopic";
-
-    public static final String MqttClientId = "clientId";
-
-    public static final String MqttQOS = "qoslevel";
-
-    public static final String INSTANCE_ID = "INSTANCE_ID";
-
+    @Deprecated
     public static final String EXACTLYONCE_DELIVERY = "exactlyOnceDelivery";
+
+    public static final String QOS = "qos";
 
     public static final String EXACTLYONCE_RM_REFRESHINTERVAL = "exactlyOnceRmRefreshInterval";
 
     public static final String MAX_BATCH_MESSAGE_COUNT = "maxBatchMessageCount";
 
+    public static final String INSTANCE_ID = "instanceId";
+
     public static final String LANGUAGE_IDENTIFIER = "languageIdentifier";
+
+    public static final String MsgTraceSwitch = "msgTraceSwitch";
+
+
 
 }

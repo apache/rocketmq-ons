@@ -16,9 +16,9 @@
  */
 package org.apache.rocketmq.ons.sample.producer;
 
-import io.openmessaging.Message;
-import io.openmessaging.transaction.LocalTransactionChecker;
-import io.openmessaging.transaction.TransactionStatus;
+import io.openmessaging.api.Message;
+import io.openmessaging.api.transaction.LocalTransactionChecker;
+import io.openmessaging.api.transaction.TransactionStatus;
 
 public class LocalTransactionCheckerImpl implements LocalTransactionChecker {
 
