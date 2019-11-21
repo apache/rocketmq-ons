@@ -20,6 +20,7 @@ import io.openmessaging.api.Consumer;
 import io.openmessaging.api.Message;
 import io.openmessaging.api.OMS;
 import io.openmessaging.api.Producer;
+import io.openmessaging.api.PullConsumer;
 import io.openmessaging.api.batch.BatchConsumer;
 import io.openmessaging.api.order.OrderConsumer;
 import io.openmessaging.api.order.OrderProducer;
@@ -38,6 +39,7 @@ import org.apache.rocketmq.ons.api.impl.rocketmq.ONSUtil;
 import org.apache.rocketmq.ons.api.impl.rocketmq.OrderConsumerImpl;
 import org.apache.rocketmq.ons.api.impl.rocketmq.OrderProducerImpl;
 import org.apache.rocketmq.ons.api.impl.rocketmq.ProducerImpl;
+import org.apache.rocketmq.ons.api.impl.rocketmq.PullConsumerImpl;
 import org.apache.rocketmq.ons.api.impl.rocketmq.TransactionProducerImpl;
 
 /**
@@ -88,5 +90,10 @@ public class ONSFactoryImpl implements ONSFactoryAPI {
                 return LocalTransactionState.UNKNOW;
             }
         });
+    }
+
+    @Override
+    public PullConsumer createPullConsumer(Properties properties) {
+        return new PullConsumerImpl(properties);
     }
 }

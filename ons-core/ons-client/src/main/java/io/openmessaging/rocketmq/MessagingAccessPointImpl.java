@@ -21,7 +21,6 @@ import io.openmessaging.api.Consumer;
 import io.openmessaging.api.Message;
 import io.openmessaging.api.MessagingAccessPoint;
 import io.openmessaging.api.OMSBuiltinKeys;
-import io.openmessaging.api.OMSResponseStatus;
 import io.openmessaging.api.Producer;
 import io.openmessaging.api.PullConsumer;
 import io.openmessaging.api.batch.BatchConsumer;
@@ -43,6 +42,7 @@ import org.apache.rocketmq.ons.api.impl.rocketmq.ONSUtil;
 import org.apache.rocketmq.ons.api.impl.rocketmq.OrderConsumerImpl;
 import org.apache.rocketmq.ons.api.impl.rocketmq.OrderProducerImpl;
 import org.apache.rocketmq.ons.api.impl.rocketmq.ProducerImpl;
+import org.apache.rocketmq.ons.api.impl.rocketmq.PullConsumerImpl;
 import org.apache.rocketmq.ons.api.impl.rocketmq.TransactionProducerImpl;
 
 public class MessagingAccessPointImpl implements MessagingAccessPoint {
@@ -71,8 +71,7 @@ public class MessagingAccessPointImpl implements MessagingAccessPoint {
 
     @Override public PullConsumer createPullConsumer(Properties properties) {
         injectNameServerAddress(properties);
-        properties.put(PropertyKeyConst.NAMESRV_ADDR, this.attributes.getProperty(OMSBuiltinKeys.ACCESS_POINTS));
-        throw OMSResponseStatus.generateException(OMSResponseStatus.STATUS_1101);
+        return new PullConsumerImpl(properties);
     }
 
     @Override

@@ -24,7 +24,7 @@ public class LocalTransactionCheckerImpl implements LocalTransactionChecker {
 
     @Override
     public TransactionStatus check(Message msg) {
-        System.out.printf("Receive transaction check back request, MsgId: %s%n", msg.getMsgID());
+        System.out.printf("Receive transaction check back request, MsgId: %s%n", msg);
         return TransactionStatus.CommitTransaction;
     }
 }

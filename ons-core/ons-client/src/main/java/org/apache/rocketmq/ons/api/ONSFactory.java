@@ -19,6 +19,7 @@ package org.apache.rocketmq.ons.api;
 import io.openmessaging.api.Consumer;
 import io.openmessaging.api.OMS;
 import io.openmessaging.api.Producer;
+import io.openmessaging.api.PullConsumer;
 import io.openmessaging.api.batch.BatchConsumer;
 import io.openmessaging.api.order.OrderConsumer;
 import io.openmessaging.api.order.OrderProducer;
@@ -220,6 +221,31 @@ public class ONSFactory {
      */
     public static OrderConsumer createOrderedConsumer(final Properties properties) {
         return onsFactory.createOrderedConsumer(properties);
+    }
+
+    /**
+     * Create Order Consumer
+     * <p>
+     * <code>properties</code>
+     * Requires:
+     * <ol>
+     * <li>{@link PropertyKeyConst#GROUP_ID}</li>
+     * <li>{@link PropertyKeyConst#AccessKey}</li>
+     * <li>{@link PropertyKeyConst#SecretKey}</li>
+     * <li>{@link PropertyKeyConst#ONSAddr}</li>
+     * </ol>
+     * Optional:
+     * <ul>
+     * <li>{@link PropertyKeyConst#ConsumeThreadNums}</li>
+     * <li>{@link PropertyKeyConst#OnsChannel}</li>
+     * </ul>
+     * </p>
+     *
+     * @param properties Consumer's configuration
+     * @return {@code PullConsumer} Thread safe {@link PullConsumer} instance
+     */
+    public static PullConsumer createPullConsumer(final Properties properties) {
+        return onsFactory.createPullConsumer(properties);
     }
 
 }

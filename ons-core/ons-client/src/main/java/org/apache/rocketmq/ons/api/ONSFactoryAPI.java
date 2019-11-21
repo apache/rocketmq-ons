@@ -16,15 +16,16 @@
  */
 package org.apache.rocketmq.ons.api;
 
-import io.openmessaging.api.Consumer;
-import io.openmessaging.api.MessagingAccessPoint;
-import io.openmessaging.api.Producer;
-import io.openmessaging.api.batch.BatchConsumer;
-import io.openmessaging.api.order.OrderConsumer;
-import io.openmessaging.api.order.OrderProducer;
-import io.openmessaging.api.transaction.LocalTransactionChecker;
-import io.openmessaging.api.transaction.TransactionProducer;
-import java.util.Properties;
+    import io.openmessaging.api.Consumer;
+    import io.openmessaging.api.MessagingAccessPoint;
+    import io.openmessaging.api.Producer;
+    import io.openmessaging.api.PullConsumer;
+    import io.openmessaging.api.batch.BatchConsumer;
+    import io.openmessaging.api.order.OrderConsumer;
+    import io.openmessaging.api.order.OrderProducer;
+    import io.openmessaging.api.transaction.LocalTransactionChecker;
+    import io.openmessaging.api.transaction.TransactionProducer;
+    import java.util.Properties;
 
 /**
  * {@link MessagingAccessPoint} is recommended.
@@ -34,19 +35,16 @@ public interface ONSFactoryAPI {
 
     Producer createProducer(final Properties properties);
 
-
     Consumer createConsumer(final Properties properties);
-
 
     BatchConsumer createBatchConsumer(final Properties properties);
 
-
     OrderProducer createOrderProducer(final Properties properties);
-
 
     OrderConsumer createOrderedConsumer(final Properties properties);
 
-
     TransactionProducer createTransactionProducer(final Properties properties,
         final LocalTransactionChecker checker);
+
+    PullConsumer createPullConsumer(final Properties properties);
 }

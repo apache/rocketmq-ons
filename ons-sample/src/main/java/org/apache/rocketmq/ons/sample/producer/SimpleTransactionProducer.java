@@ -60,8 +60,8 @@ public class SimpleTransactionProducer {
                 SendResult sendResult = transactionProducer.send(message, new LocalTransactionExecuter() {
                     @Override
                     public TransactionStatus execute(Message msg, Object arg) {
-                        System.out.printf("Execute local transaction and return TransactionStatus. %n");
-                        return TransactionStatus.CommitTransaction;
+                        System.out.printf("Execute local transaction and return TransactionStatus. %s %n", msg);
+                        return TransactionStatus.Unknow;
                     }
                 }, null);
                 assert sendResult != null;
