@@ -17,11 +17,17 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
+
+import io.openmessaging.api.Action;
+import io.openmessaging.api.ConsumeContext;
+import io.openmessaging.api.Consumer;
+import io.openmessaging.api.Message;
+import io.openmessaging.api.MessageListener;
+import io.openmessaging.api.MessageSelector;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
-
 import javax.annotation.Generated;
 
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
@@ -29,14 +35,7 @@ import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.apache.rocketmq.common.protocol.heartbeat.MessageModel;
-
-import org.apache.rocketmq.ons.api.Action;
 import org.apache.rocketmq.ons.api.Constants;
-import org.apache.rocketmq.ons.api.ConsumeContext;
-import org.apache.rocketmq.ons.api.Consumer;
-import org.apache.rocketmq.ons.api.Message;
-import org.apache.rocketmq.ons.api.MessageListener;
-import org.apache.rocketmq.ons.api.MessageSelector;
 import org.apache.rocketmq.ons.api.PropertyKeyConst;
 import org.apache.rocketmq.ons.api.PropertyValueConst;
 import org.apache.rocketmq.ons.api.exception.ONSClientException;

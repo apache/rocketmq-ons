@@ -17,17 +17,16 @@
 package org.apache.rocketmq.ons.api.impl.tracehook;
 
 import java.util.ArrayList;
-
-import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceBean;
-import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceConstants;
-import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceContext;
-import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceType;
-import org.apache.rocketmq.ons.open.trace.core.dispatch.AsyncDispatcher;
 import org.apache.rocketmq.client.hook.SendMessageContext;
 import org.apache.rocketmq.client.hook.SendMessageHook;
 import org.apache.rocketmq.client.producer.SendStatus;
 import org.apache.rocketmq.common.MixAll;
 import org.apache.rocketmq.common.protocol.NamespaceUtil;
+import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceBean;
+import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceConstants;
+import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceContext;
+import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceType;
+import org.apache.rocketmq.ons.open.trace.core.dispatch.AsyncDispatcher;
 
 public class OnsClientSendMessageHookImpl implements SendMessageHook {
 

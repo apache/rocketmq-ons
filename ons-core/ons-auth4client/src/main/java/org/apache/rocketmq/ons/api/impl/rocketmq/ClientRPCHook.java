@@ -17,9 +17,9 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
-import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 import org.apache.rocketmq.ons.api.impl.authority.AuthUtil;
 import org.apache.rocketmq.ons.api.impl.authority.SessionCredentials;
+import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 
 import static org.apache.rocketmq.ons.api.impl.authority.SessionCredentials.AccessKey;
 import static org.apache.rocketmq.ons.api.impl.authority.SessionCredentials.ONSChannelKey;
@@ -35,6 +35,9 @@ public class ClientRPCHook extends AbstractRPCHook {
 
     @Override
     public void doBeforeRequest(String remoteAddr, RemotingCommand request) {
+        if (sessionCredentials.getAccessKey() == null && sessionCredentials.getSecretKey() == null) {
+            return;
+        }
         byte[] total = AuthUtil.combineRequestContent(request,
             parseRequestContent(request, sessionCredentials.getAccessKey(),
                 sessionCredentials.getSecurityToken(), sessionCredentials.getOnsChannel().name()));
@@ -47,7 +50,6 @@ public class ClientRPCHook extends AbstractRPCHook {
             request.addExtField(SecurityToken, sessionCredentials.getSecurityToken());
         }
     }
-
 
     @Override
     public void doAfterResponse(String remoteAddr, RemotingCommand request, RemotingCommand response) {

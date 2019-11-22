@@ -17,6 +17,9 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
+
+import io.openmessaging.api.Credentials;
+import io.openmessaging.api.LifeCycle;
 import java.util.Properties;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -30,7 +33,6 @@ import org.apache.rocketmq.client.impl.producer.DefaultMQProducerImpl;
 import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.common.namesrv.TopAddressing;
 import org.apache.rocketmq.logging.InternalLogger;
-import org.apache.rocketmq.ons.api.Admin;
 import org.apache.rocketmq.ons.api.PropertyKeyConst;
 import org.apache.rocketmq.ons.api.exception.ONSClientException;
 import org.apache.rocketmq.ons.api.impl.authority.SessionCredentials;
@@ -41,7 +43,7 @@ import org.apache.rocketmq.ons.open.trace.core.dispatch.AsyncDispatcher;
 import static org.apache.rocketmq.common.UtilAll.getPid;
 
 @Generated("ons-client")
-public abstract class ONSClientAbstract implements Admin {
+public abstract class ONSClientAbstract implements LifeCycle, Credentials {
 
     protected static final String WSADDR_INTERNAL = System.getProperty("com.aliyun.openservices.ons.addr.internal",
         "http://onsaddr-internal.aliyun.com:8080/rocketmq/nsaddr4client-internal");

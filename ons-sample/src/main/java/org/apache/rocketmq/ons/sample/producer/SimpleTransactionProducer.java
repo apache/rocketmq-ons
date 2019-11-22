@@ -16,28 +16,41 @@
  */
 package org.apache.rocketmq.ons.sample.producer;
 
+import io.openmessaging.api.Message;
+import io.openmessaging.api.MessagingAccessPoint;
+import io.openmessaging.api.OMS;
+import io.openmessaging.api.SendResult;
+import io.openmessaging.api.transaction.LocalTransactionExecuter;
+import io.openmessaging.api.transaction.TransactionProducer;
+import io.openmessaging.api.transaction.TransactionStatus;
 import java.util.Date;
 import java.util.Properties;
-import org.apache.rocketmq.ons.api.Message;
-import org.apache.rocketmq.ons.api.ONSFactory;
 import org.apache.rocketmq.ons.api.PropertyKeyConst;
-import org.apache.rocketmq.ons.api.SendResult;
 import org.apache.rocketmq.ons.api.exception.ONSClientException;
-import org.apache.rocketmq.ons.api.transaction.LocalTransactionExecuter;
-import org.apache.rocketmq.ons.api.transaction.TransactionProducer;
-import org.apache.rocketmq.ons.api.transaction.TransactionStatus;
 import org.apache.rocketmq.ons.sample.MQConfig;
 
 public class SimpleTransactionProducer {
 
     public static void main(String[] args) {
+        MessagingAccessPoint messagingAccessPoint = OMS.getMessagingAccessPoint("oms:rocketmq://127.0.0.1:9876");
+
         Properties tranProducerProperties = new Properties();
         tranProducerProperties.setProperty(PropertyKeyConst.GROUP_ID, MQConfig.GROUP_ID);
         tranProducerProperties.setProperty(PropertyKeyConst.AccessKey, MQConfig.ACCESS_KEY);
         tranProducerProperties.setProperty(PropertyKeyConst.SecretKey, MQConfig.SECRET_KEY);
-        tranProducerProperties.setProperty(PropertyKeyConst.NAMESRV_ADDR, MQConfig.NAMESRV_ADDR);
         LocalTransactionCheckerImpl localTransactionChecker = new LocalTransactionCheckerImpl();
-        TransactionProducer transactionProducer = ONSFactory.createTransactionProducer(tranProducerProperties, localTransactionChecker);
+        TransactionProducer transactionProducer = messagingAccessPoint.createTransactionProducer(tranProducerProperties, localTransactionChecker);
+
+        /*
+         * Alternatively, you can use the ONSFactory to create instance directly.
+         * <pre>
+         * {@code
+         * producerProperties.setProperty(PropertyKeyConst.NAMESRV_ADDR, MQConfig.NAMESRV_ADDR);
+         * TransactionProducer producer = ONSFactory.createTransactionProducer(tranProducerProperties, localTransactionChecker);
+         * }
+         * </pre>
+         */
+
         transactionProducer.start();
 
         Message message = new Message(MQConfig.TOPIC, MQConfig.TAG, "MQ send transaction message test".getBytes());
@@ -47,8 +60,8 @@ public class SimpleTransactionProducer {
                 SendResult sendResult = transactionProducer.send(message, new LocalTransactionExecuter() {
                     @Override
                     public TransactionStatus execute(Message msg, Object arg) {
-                        System.out.printf("Execute local transaction and return TransactionStatus. %n");
-                        return TransactionStatus.CommitTransaction;
+                        System.out.printf("Execute local transaction and return TransactionStatus. %s %n", msg);
+                        return TransactionStatus.Unknow;
                     }
                 }, null);
                 assert sendResult != null;

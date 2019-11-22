@@ -17,6 +17,12 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
+
+import io.openmessaging.api.Message;
+import io.openmessaging.api.SendResult;
+import io.openmessaging.api.transaction.LocalTransactionExecuter;
+import io.openmessaging.api.transaction.TransactionProducer;
+import io.openmessaging.api.transaction.TransactionStatus;
 import java.util.Properties;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.client.exception.MQClientException;
@@ -26,14 +32,9 @@ import org.apache.rocketmq.client.producer.TransactionMQProducer;
 import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.ons.api.Constants;
-import org.apache.rocketmq.ons.api.Message;
 import org.apache.rocketmq.ons.api.PropertyKeyConst;
-import org.apache.rocketmq.ons.api.SendResult;
 import org.apache.rocketmq.ons.api.impl.tracehook.OnsClientSendMessageHookImpl;
 import org.apache.rocketmq.ons.api.impl.util.ClientLoggerUtil;
-import org.apache.rocketmq.ons.api.transaction.LocalTransactionExecuter;
-import org.apache.rocketmq.ons.api.transaction.TransactionProducer;
-import org.apache.rocketmq.ons.api.transaction.TransactionStatus;
 import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceConstants;
 import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceDispatcherType;
 import org.apache.rocketmq.ons.open.trace.core.dispatch.impl.AsyncArrayDispatcher;
@@ -47,7 +48,7 @@ public class TransactionProducerImpl extends ONSClientAbstract implements Transa
     public TransactionProducerImpl(Properties properties, TransactionCheckListener transactionCheckListener) {
         super(properties);
         this.properties = properties;
-        String producerGroup = properties.getProperty(PropertyKeyConst.GROUP_ID, properties.getProperty(PropertyKeyConst.ProducerId));
+        String producerGroup = properties.getProperty(PropertyKeyConst.GROUP_ID, properties.getProperty(PropertyKeyConst.GROUP_ID));
         if (StringUtils.isEmpty(producerGroup)) {
             producerGroup = "__ONS_PRODUCER_DEFAULT_GROUP";
         }

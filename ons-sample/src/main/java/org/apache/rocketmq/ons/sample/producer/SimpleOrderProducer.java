@@ -16,24 +16,38 @@
  */
 package org.apache.rocketmq.ons.sample.producer;
 
+import io.openmessaging.api.Message;
+import io.openmessaging.api.MessagingAccessPoint;
+import io.openmessaging.api.OMS;
+import io.openmessaging.api.SendResult;
+import io.openmessaging.api.exception.OMSRuntimeException;
+import io.openmessaging.api.order.OrderProducer;
 import java.util.Properties;
-import org.apache.rocketmq.ons.api.Message;
-import org.apache.rocketmq.ons.api.ONSFactory;
 import org.apache.rocketmq.ons.api.PropertyKeyConst;
-import org.apache.rocketmq.ons.api.SendResult;
-import org.apache.rocketmq.ons.api.exception.ONSClientException;
-import org.apache.rocketmq.ons.api.order.OrderProducer;
 import org.apache.rocketmq.ons.sample.MQConfig;
 
 public class SimpleOrderProducer {
 
     public static void main(String[] args) {
+        MessagingAccessPoint messagingAccessPoint = OMS.getMessagingAccessPoint("oms:rocketmq://127.0.0.1:9876");
+
         Properties producerProperties = new Properties();
         producerProperties.setProperty(PropertyKeyConst.GROUP_ID, MQConfig.ORDER_GROUP_ID);
         producerProperties.setProperty(PropertyKeyConst.AccessKey, MQConfig.ACCESS_KEY);
         producerProperties.setProperty(PropertyKeyConst.SecretKey, MQConfig.SECRET_KEY);
-        producerProperties.setProperty(PropertyKeyConst.NAMESRV_ADDR, MQConfig.NAMESRV_ADDR);
-        OrderProducer producer = ONSFactory.createOrderProducer(producerProperties);
+        OrderProducer producer = messagingAccessPoint.createOrderProducer(producerProperties);
+
+
+        /*
+         * Alternatively, you can use the ONSFactory to create instance directly.
+         * <pre>
+         * {@code
+         * producerProperties.setProperty(PropertyKeyConst.NAMESRV_ADDR, MQConfig.NAMESRV_ADDR);
+         * OrderProducer producer = ONSFactory.createOrderProducer(producerProperties);
+         * }
+         * </pre>
+         */
+
         producer.start();
         System.out.printf("Producer Started. %n");
 
@@ -46,10 +60,11 @@ public class SimpleOrderProducer {
                 SendResult sendResult = producer.send(msg, shardingKey);
                 assert sendResult != null;
                 System.out.printf("Send mq timer message success! Topic is: %s msgId is: %s%n", MQConfig.TOPIC, sendResult.getMessageId());
-            } catch (ONSClientException e) {
+            } catch (OMSRuntimeException e) {
                 System.out.printf("Send mq message failed. Topic is: %s%n", MQConfig.TOPIC);
                 e.printStackTrace();
             }
         }
+        producer.shutdown();
     }
 }

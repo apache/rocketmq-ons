@@ -14,17 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.rocketmq.ons.sample.consumer;
+package org.apache.rocketmq.ons.api.exception;
 
-import io.openmessaging.api.Action;
-import io.openmessaging.api.ConsumeContext;
-import io.openmessaging.api.Message;
-import io.openmessaging.api.MessageListener;
+import io.openmessaging.api.exception.OMSRuntimeException;
 
-public class MessageListenerImpl implements MessageListener {
-    @Override
-    public Action consume(Message message, ConsumeContext consumeContext) {
-        System.out.printf("Receive message, Topic is: %s,  MsgId is: %s%n", message.getTopic(), message.getMsgID());
-        return Action.CommitMessage;
+public class ONSClientException extends OMSRuntimeException {
+
+    public ONSClientException() {
+    }
+
+    public ONSClientException(Throwable cause) {
+        super(cause);
+    }
+
+    public ONSClientException(String message) {
+        super(message);
+    }
+
+    public ONSClientException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

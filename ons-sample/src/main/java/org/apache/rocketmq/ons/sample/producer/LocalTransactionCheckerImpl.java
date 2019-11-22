@@ -16,15 +16,15 @@
  */
 package org.apache.rocketmq.ons.sample.producer;
 
-import org.apache.rocketmq.ons.api.Message;
-import org.apache.rocketmq.ons.api.transaction.LocalTransactionChecker;
-import org.apache.rocketmq.ons.api.transaction.TransactionStatus;
+import io.openmessaging.api.Message;
+import io.openmessaging.api.transaction.LocalTransactionChecker;
+import io.openmessaging.api.transaction.TransactionStatus;
 
 public class LocalTransactionCheckerImpl implements LocalTransactionChecker {
 
     @Override
     public TransactionStatus check(Message msg) {
-        System.out.printf("Receive transaction check back request, MsgId: %s%n", msg.getMsgID());
+        System.out.printf("Receive transaction check back request, MsgId: %s%n", msg);
         return TransactionStatus.CommitTransaction;
     }
 }

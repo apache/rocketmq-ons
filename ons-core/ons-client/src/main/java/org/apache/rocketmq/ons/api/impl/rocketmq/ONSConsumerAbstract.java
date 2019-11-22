@@ -17,22 +17,21 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
-import java.util.Properties;
 
-import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceConstants;
-import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceDispatcherType;
-import org.apache.rocketmq.ons.open.trace.core.dispatch.impl.AsyncArrayDispatcher;
+import io.openmessaging.api.MessageSelector;
+import java.util.Properties;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.logging.InternalLogger;
-
-import org.apache.rocketmq.ons.api.MessageSelector;
 import org.apache.rocketmq.ons.api.PropertyKeyConst;
 import org.apache.rocketmq.ons.api.exception.ONSClientException;
 import org.apache.rocketmq.ons.api.impl.tracehook.OnsConsumeMessageHookImpl;
 import org.apache.rocketmq.ons.api.impl.util.ClientLoggerUtil;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceConstants;
+import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceDispatcherType;
+import org.apache.rocketmq.ons.open.trace.core.dispatch.impl.AsyncArrayDispatcher;
 import org.apache.rocketmq.remoting.protocol.LanguageCode;
 
 public class ONSConsumerAbstract extends ONSClientAbstract {
@@ -50,7 +49,7 @@ public class ONSConsumerAbstract extends ONSClientAbstract {
     public ONSConsumerAbstract(final Properties properties) {
         super(properties);
 
-        String consumerGroup = properties.getProperty(PropertyKeyConst.GROUP_ID, properties.getProperty(PropertyKeyConst.ConsumerId));
+        String consumerGroup = properties.getProperty(PropertyKeyConst.GROUP_ID, properties.getProperty(PropertyKeyConst.GROUP_ID));
         if (StringUtils.isEmpty(consumerGroup)) {
             throw new ONSClientException("ConsumerId property is null");
         }

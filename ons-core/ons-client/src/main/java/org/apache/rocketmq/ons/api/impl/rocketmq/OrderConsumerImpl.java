@@ -17,6 +17,13 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
+
+import io.openmessaging.api.Message;
+import io.openmessaging.api.MessageSelector;
+import io.openmessaging.api.order.ConsumeOrderContext;
+import io.openmessaging.api.order.MessageOrderListener;
+import io.openmessaging.api.order.OrderAction;
+import io.openmessaging.api.order.OrderConsumer;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,15 +33,8 @@ import org.apache.rocketmq.client.consumer.listener.ConsumeOrderlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly;
 import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.common.message.MessageExt;
-
-import org.apache.rocketmq.ons.api.Message;
-import org.apache.rocketmq.ons.api.MessageSelector;
 import org.apache.rocketmq.ons.api.PropertyKeyConst;
 import org.apache.rocketmq.ons.api.exception.ONSClientException;
-import org.apache.rocketmq.ons.api.order.ConsumeOrderContext;
-import org.apache.rocketmq.ons.api.order.MessageOrderListener;
-import org.apache.rocketmq.ons.api.order.OrderAction;
-import org.apache.rocketmq.ons.api.order.OrderConsumer;
 
 public class OrderConsumerImpl extends ONSConsumerAbstract implements OrderConsumer {
     private final ConcurrentHashMap<String, MessageOrderListener> subscribeTable = new ConcurrentHashMap<String, MessageOrderListener>();

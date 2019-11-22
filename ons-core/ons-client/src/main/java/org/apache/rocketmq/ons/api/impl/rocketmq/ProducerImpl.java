@@ -17,12 +17,14 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
+import io.openmessaging.api.Message;
+import io.openmessaging.api.OnExceptionContext;
+import io.openmessaging.api.Producer;
+import io.openmessaging.api.SendCallback;
+import io.openmessaging.api.SendResult;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
-
-import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceConstants;
-import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceDispatcherType;
-import org.apache.rocketmq.ons.open.trace.core.dispatch.impl.AsyncArrayDispatcher;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.client.exception.MQBrokerException;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
@@ -30,19 +32,15 @@ import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.common.message.MessageClientIDSetter;
 import org.apache.rocketmq.common.protocol.ResponseCode;
 import org.apache.rocketmq.logging.InternalLogger;
-import org.apache.rocketmq.remoting.exception.RemotingConnectException;
-import org.apache.rocketmq.remoting.exception.RemotingTimeoutException;
-
-import org.apache.rocketmq.ons.api.Message;
-import org.apache.rocketmq.ons.api.OnExceptionContext;
-import org.apache.rocketmq.ons.api.Producer;
 import org.apache.rocketmq.ons.api.PropertyKeyConst;
-import org.apache.rocketmq.ons.api.SendCallback;
-import org.apache.rocketmq.ons.api.SendResult;
 import org.apache.rocketmq.ons.api.exception.ONSClientException;
 import org.apache.rocketmq.ons.api.impl.tracehook.OnsClientSendMessageHookImpl;
 import org.apache.rocketmq.ons.api.impl.util.ClientLoggerUtil;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceConstants;
+import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceDispatcherType;
+import org.apache.rocketmq.ons.open.trace.core.dispatch.impl.AsyncArrayDispatcher;
+import org.apache.rocketmq.remoting.exception.RemotingConnectException;
+import org.apache.rocketmq.remoting.exception.RemotingTimeoutException;
 import org.apache.rocketmq.remoting.protocol.LanguageCode;
 
 public class ProducerImpl extends ONSClientAbstract implements Producer {
@@ -52,7 +50,7 @@ public class ProducerImpl extends ONSClientAbstract implements Producer {
     public ProducerImpl(final Properties properties) {
         super(properties);
 
-        String producerGroup = properties.getProperty(PropertyKeyConst.GROUP_ID, properties.getProperty(PropertyKeyConst.ProducerId));
+        String producerGroup = properties.getProperty(PropertyKeyConst.GROUP_ID, properties.getProperty(PropertyKeyConst.GROUP_ID));
         if (StringUtils.isEmpty(producerGroup)) {
             producerGroup = "__ONS_PRODUCER_DEFAULT_GROUP";
         }
@@ -74,6 +72,7 @@ public class ProducerImpl extends ONSClientAbstract implements Producer {
 //        if (properties.containsKey(PropertyKeyConst.EXACTLYONCE_DELIVERY)) {
 //            this.defaultMQProducer.setAddExtendUniqInfo(Boolean.valueOf(properties.get(PropertyKeyConst.EXACTLYONCE_DELIVERY).toString()));
 //        }
+
         if (properties.containsKey(PropertyKeyConst.LANGUAGE_IDENTIFIER)) {
             int language = Integer.valueOf(properties.get(PropertyKeyConst.LANGUAGE_IDENTIFIER).toString());
             byte languageByte = (byte) language;
@@ -197,10 +196,10 @@ public class ProducerImpl extends ONSClientAbstract implements Producer {
 
             @Override
             public void onException(Throwable e) {
-                //String topic = new String(message.getTopic());
-                //String msgId = new String(message.getMsgID());
+                String topic = new String(message.getTopic());
+                String msgId = new String(message.getMsgID());
                 LOGGER.error(String.format("Send message async Exception, %s", message), e);
-                ONSClientException onsEx = checkProducerException(message.getTopic(), message.getMsgID(), e);
+                ONSClientException onsEx = checkProducerException(topic, msgId, e);
                 OnExceptionContext context = new OnExceptionContext();
                 context.setTopic(message.getTopic());
                 context.setMessageId(message.getMsgID());

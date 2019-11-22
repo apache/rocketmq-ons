@@ -16,17 +16,20 @@
  */
 package org.apache.rocketmq.ons.sample.consumer;
 
-
-import io.openmessaging.api.Consumer;
+import io.openmessaging.api.Message;
 import io.openmessaging.api.MessagingAccessPoint;
 import io.openmessaging.api.OMS;
+import io.openmessaging.api.PullConsumer;
+import io.openmessaging.api.TopicPartition;
+import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import org.apache.rocketmq.ons.api.PropertyKeyConst;
 import org.apache.rocketmq.ons.sample.MQConfig;
 
-public class SimpleMQConsumer {
-
+public class SimplePullConsumer {
     public static void main(String[] args) {
+
         MessagingAccessPoint messagingAccessPoint = OMS.getMessagingAccessPoint("oms:rocketmq://127.0.0.1:9876");
 
         Properties consumerProperties = new Properties();
@@ -34,7 +37,7 @@ public class SimpleMQConsumer {
         consumerProperties.setProperty(PropertyKeyConst.AccessKey, MQConfig.ACCESS_KEY);
         consumerProperties.setProperty(PropertyKeyConst.SecretKey, MQConfig.SECRET_KEY);
 
-        Consumer consumer = messagingAccessPoint.createConsumer(consumerProperties);
+        PullConsumer consumer = messagingAccessPoint.createPullConsumer(consumerProperties);
         /*
          * Alternatively, you can use the ONSFactory to create instance directly.
          * <pre>
@@ -44,15 +47,17 @@ public class SimpleMQConsumer {
          * }
          * </pre>
          */
-        consumer.subscribe(MQConfig.TOPIC, MQConfig.TAG, new MessageListenerImpl());
-        consumer.start();
-        System.out.printf("Consumer start success. %n");
 
-        try {
-            Thread.sleep(200000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        consumer.start();
+        Set<TopicPartition> topicPartitions = consumer.topicPartitions(MQConfig.TOPIC);
+        consumer.assign(topicPartitions);
+
+        while (true){
+            List<Message> messages = consumer.poll(3000);
+            System.out.printf("Received message: %s %n", messages);
+            consumer.commitSync();
         }
-        consumer.shutdown();
+
+
     }
 }

@@ -17,25 +17,25 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
+
+import io.openmessaging.api.Message;
+import io.openmessaging.api.SendResult;
+import io.openmessaging.api.order.OrderProducer;
 import java.util.List;
 import java.util.Properties;
-
-import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceConstants;
-import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceDispatcherType;
-import org.apache.rocketmq.ons.open.trace.core.dispatch.impl.AsyncArrayDispatcher;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.common.message.MessageQueue;
 import org.apache.rocketmq.logging.InternalLogger;
 
-import org.apache.rocketmq.ons.api.Message;
 import org.apache.rocketmq.ons.api.PropertyKeyConst;
-import org.apache.rocketmq.ons.api.SendResult;
 import org.apache.rocketmq.ons.api.exception.ONSClientException;
 import org.apache.rocketmq.ons.api.impl.tracehook.OnsClientSendMessageHookImpl;
 import org.apache.rocketmq.ons.api.impl.util.ClientLoggerUtil;
-import org.apache.rocketmq.ons.api.order.OrderProducer;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceConstants;
+import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceDispatcherType;
+import org.apache.rocketmq.ons.open.trace.core.dispatch.impl.AsyncArrayDispatcher;
 import org.apache.rocketmq.remoting.protocol.LanguageCode;
 
 public class OrderProducerImpl extends ONSClientAbstract implements OrderProducer {
@@ -44,7 +44,7 @@ public class OrderProducerImpl extends ONSClientAbstract implements OrderProduce
 
     public OrderProducerImpl(final Properties properties) {
         super(properties);
-        String producerGroup = properties.getProperty(PropertyKeyConst.GROUP_ID, properties.getProperty(PropertyKeyConst.ProducerId));
+        String producerGroup = properties.getProperty(PropertyKeyConst.GROUP_ID, properties.getProperty(PropertyKeyConst.GROUP_ID));
         if (StringUtils.isEmpty(producerGroup)) {
             producerGroup = "__ONS_PRODUCER_DEFAULT_GROUP";
         }
@@ -63,6 +63,7 @@ public class OrderProducerImpl extends ONSClientAbstract implements OrderProduce
 
 //        boolean addExtendUniqInfo = Boolean.parseBoolean(properties.getProperty(PropertyKeyConst.EXACTLYONCE_DELIVERY, "false"));
 //        this.defaultMQProducer.setAddExtendUniqInfo(addExtendUniqInfo);
+
         if (properties.containsKey(PropertyKeyConst.LANGUAGE_IDENTIFIER)) {
             int language = Integer.valueOf(properties.get(PropertyKeyConst.LANGUAGE_IDENTIFIER).toString());
             byte languageByte = (byte) language;
