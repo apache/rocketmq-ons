@@ -51,8 +51,6 @@ public class PullConsumerImpl extends ONSClientAbstract implements PullConsumer 
 
     private DefaultLitePullConsumer litePullConsumer;
 
-    private final String TOPIC_PARTITION_SPLITER = "#";
-
     private int maxCachedMessageSizeInMiB = 512;
 
     private int maxCachedMessageAmount = 5000;
@@ -134,14 +132,14 @@ public class PullConsumerImpl extends ONSClientAbstract implements PullConsumer 
 
     private TopicPartition convertToTopicPartition(MessageQueue messageQueue) {
         String topic = messageQueue.getTopic();
-        String partition = messageQueue.getBrokerName() + TOPIC_PARTITION_SPLITER + messageQueue.getQueueId();
+        String partition = messageQueue.getBrokerName() + Constants.TOPIC_PARTITION_SEPARATOR + messageQueue.getQueueId();
         TopicPartition topicPartition = new TopicPartition(topic, partition);
         return topicPartition;
     }
 
     private MessageQueue convertToMessageQueue(TopicPartition topicPartition) {
         String topic = topicPartition.getTopic();
-        String[] tmp = topicPartition.getPartition().split(TOPIC_PARTITION_SPLITER);
+        String[] tmp = topicPartition.getPartition().split(Constants.TOPIC_PARTITION_SEPARATOR);
         if (tmp.length != 2) {
             LOGGER.warn("Failed to get message queue from TopicPartition: {}", topicPartition);
             throw new ONSClientException("Failed to get message queue");

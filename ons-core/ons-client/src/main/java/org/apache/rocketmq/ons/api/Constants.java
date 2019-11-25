@@ -19,4 +19,6 @@ package org.apache.rocketmq.ons.api;
 
 public class Constants {
     public static final String TRANSACTION_ID = "__transactionId__";
+
+    public static final String TOPIC_PARTITION_SEPARATOR = "#";
 }

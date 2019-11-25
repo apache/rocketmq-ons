@@ -26,7 +26,6 @@ import java.util.Properties;
 import org.apache.rocketmq.ons.api.PropertyKeyConst;
 import org.apache.rocketmq.ons.sample.MQConfig;
 
-//    io.openmessaging.api.xxx => com.aliyun.openservices.ons.api.xxxx
 
 public class SimpleMQProducer {
 
