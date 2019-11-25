@@ -79,6 +79,7 @@ public class PropertyKeyConst implements OMSBuiltinKeys {
 
     public static final String MsgTraceSwitch = "msgTraceSwitch";
 
+    public static final String AUTO_COMMIT = "autoCommit";
 
 
 }
