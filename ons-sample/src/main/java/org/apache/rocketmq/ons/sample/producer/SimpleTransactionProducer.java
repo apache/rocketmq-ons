@@ -70,7 +70,7 @@ public class SimpleTransactionProducer {
                 e.printStackTrace();
             }
         }
-
+        transactionProducer.shutdown();
         System.out.printf("Send transaction message success. %n");
     }
 }

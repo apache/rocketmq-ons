@@ -21,8 +21,6 @@ import io.openmessaging.api.ExpressionType;
 import io.openmessaging.api.MessageListener;
 import io.openmessaging.api.MessageSelector;
 import io.openmessaging.api.bean.Subscription;
-import io.openmessaging.api.bean.SubscriptionExt;
-import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -69,36 +67,19 @@ public class ConsumerBean implements Consumer {
         Iterator<Entry<Subscription, MessageListener>> it = this.subscriptionTable.entrySet().iterator();
         while (it.hasNext()) {
             Entry<Subscription, MessageListener> next = it.next();
-            if ("com.aliyun.openservices.ons.api.impl.notify.ConsumerImpl".equals(this.consumer.getClass().getCanonicalName())
-                && (next.getKey() instanceof SubscriptionExt)) {
-                SubscriptionExt subscription = (SubscriptionExt) next.getKey();
-                for (Method method : this.consumer.getClass().getMethods()) {
-                    if ("subscribeNotify".equals(method.getName())) {
-                        try {
-                            method.invoke(consumer, subscription.getTopic(), subscription.getExpression(),
-                                subscription.isPersistence(), next.getValue());
-                        } catch (Exception e) {
-                            throw new ONSClientException("subscribeNotify invoke exception", e);
-                        }
-                        break;
-                    }
-                }
 
+            Subscription subscription = next.getKey();
+            if (subscription.getType() == null || ExpressionType.TAG.name().equals(subscription.getType())) {
+
+                this.subscribe(subscription.getTopic(), subscription.getExpression(), next.getValue());
+
+            } else if (ExpressionType.SQL92.name().equals(subscription.getType())) {
+
+                this.subscribe(subscription.getTopic(), MessageSelector.bySql(subscription.getExpression()), next.getValue());
             } else {
-                Subscription subscription = next.getKey();
-                if (subscription.getType() == null || ExpressionType.TAG.name().equals(subscription.getType())) {
 
-                    this.subscribe(subscription.getTopic(), subscription.getExpression(), next.getValue());
-
-                } else if (ExpressionType.SQL92.name().equals(subscription.getType())) {
-
-                    this.subscribe(subscription.getTopic(), MessageSelector.bySql(subscription.getExpression()), next.getValue());
-                } else {
-
-                    throw new ONSClientException(String.format("Expression type %s is unknown!", subscription.getType()));
-                }
+                throw new ONSClientException(String.format("Expression type %s is unknown!", subscription.getType()));
             }
-
         }
 
         this.consumer.start();

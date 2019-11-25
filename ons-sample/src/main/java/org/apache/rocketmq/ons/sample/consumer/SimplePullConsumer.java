@@ -28,6 +28,8 @@ import org.apache.rocketmq.ons.api.PropertyKeyConst;
 import org.apache.rocketmq.ons.sample.MQConfig;
 
 public class SimplePullConsumer {
+    public static volatile boolean running = true;
+
     public static void main(String[] args) {
 
         MessagingAccessPoint messagingAccessPoint = OMS.getMessagingAccessPoint("oms:rocketmq://127.0.0.1:9876");
@@ -52,12 +54,11 @@ public class SimplePullConsumer {
         Set<TopicPartition> topicPartitions = consumer.topicPartitions(MQConfig.TOPIC);
         consumer.assign(topicPartitions);
 
-        while (true){
+        while (running) {
             List<Message> messages = consumer.poll(3000);
             System.out.printf("Received message: %s %n", messages);
             consumer.commitSync();
         }
-
-
+        consumer.shutdown();
     }
 }

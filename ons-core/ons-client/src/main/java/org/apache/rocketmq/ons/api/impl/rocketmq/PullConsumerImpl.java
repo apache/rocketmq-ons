@@ -51,8 +51,6 @@ public class PullConsumerImpl extends ONSClientAbstract implements PullConsumer 
 
     private DefaultLitePullConsumer litePullConsumer;
 
-    private final String TOPIC_PARTITION_SPLITER = "#";
-
     private int maxCachedMessageSizeInMiB = 512;
 
     private int maxCachedMessageAmount = 5000;
@@ -105,34 +103,14 @@ public class PullConsumerImpl extends ONSClientAbstract implements PullConsumer 
             this.litePullConsumer.setPullThresholdSizeForQueue(maxCachedMessageSizeInMiB);
         }
 
-//        String msgTraceSwitch = properties.getProperty(PropertyKeyConst.MsgTraceSwitch);
-//        if (!UtilAll.isBlank(msgTraceSwitch) && (!Boolean.parseBoolean(msgTraceSwitch))) {
-//            LOGGER.info("MQ Client Disable the Trace Hook!");
-//        } else {
-//            try {
-//                Properties tempProperties = new Properties();
-//                tempProperties.put(OnsTraceConstants.AccessKey, sessionCredentials.getAccessKey());
-//                tempProperties.put(OnsTraceConstants.SecretKey, sessionCredentials.getSecretKey());
-//                tempProperties.put(OnsTraceConstants.MaxMsgSize, "128000");
-//                tempProperties.put(OnsTraceConstants.AsyncBufferSize, "2048");
-//                tempProperties.put(OnsTraceConstants.MaxBatchNum, "100");
-//                tempProperties.put(OnsTraceConstants.NAMESRV_ADDR, this.getNameServerAddr());
-//                tempProperties.put(OnsTraceConstants.InstanceName, "PID_CLIENT_INNER_TRACE_PRODUCER");
-//                tempProperties.put(OnsTraceConstants.TraceDispatcherType, OnsTraceDispatcherType.CONSUMER.name());
-//                AsyncArrayDispatcher dispatcher = new AsyncArrayDispatcher(tempProperties, sessionCredentials);
-//                dispatcher.setHostConsumer(defaultMQPushConsumer.getDefaultMQPushConsumerImpl());
-//                traceDispatcher = dispatcher;
-//                this.defaultMQPushConsumer.getDefaultMQPushConsumerImpl().registerConsumeMessageHook(
-//                    new OnsConsumeMessageHookImpl(traceDispatcher));
-//            } catch (Throwable e) {
-//                LOGGER.error("system mqtrace hook init failed ,maybe can't send msg trace data", e);
-//            }
-//        }
-
+        String autoCommit = properties.getProperty(PropertyKeyConst.AUTO_COMMIT);
+        if (!UtilAll.isBlank(autoCommit)) {
+            this.litePullConsumer.setAutoCommit(Boolean.valueOf(autoCommit));
+        }
     }
 
     @Override protected void updateNameServerAddr(String nameServerAddresses) {
-        //TODO
+        this.litePullConsumer.updateNameServerAddress(nameServerAddresses);
     }
 
     private Set<TopicPartition> convertToTopicPartitions(Collection<MessageQueue> messageQueues) {
@@ -154,14 +132,14 @@ public class PullConsumerImpl extends ONSClientAbstract implements PullConsumer 
 
     private TopicPartition convertToTopicPartition(MessageQueue messageQueue) {
         String topic = messageQueue.getTopic();
-        String partition = messageQueue.getBrokerName() + TOPIC_PARTITION_SPLITER + messageQueue.getQueueId();
+        String partition = messageQueue.getBrokerName() + Constants.TOPIC_PARTITION_SEPARATOR + messageQueue.getQueueId();
         TopicPartition topicPartition = new TopicPartition(topic, partition);
         return topicPartition;
     }
 
     private MessageQueue convertToMessageQueue(TopicPartition topicPartition) {
         String topic = topicPartition.getTopic();
-        String[] tmp = topicPartition.getPartition().split(TOPIC_PARTITION_SPLITER);
+        String[] tmp = topicPartition.getPartition().split(Constants.TOPIC_PARTITION_SEPARATOR);
         if (tmp.length != 2) {
             LOGGER.warn("Failed to get message queue from TopicPartition: {}", topicPartition);
             throw new ONSClientException("Failed to get message queue");
@@ -233,11 +211,21 @@ public class PullConsumerImpl extends ONSClientAbstract implements PullConsumer 
     }
 
     @Override public void seekToBeginning(TopicPartition topicPartition) {
-        //TODO
+        try {
+            this.litePullConsumer.seekToBegin(convertToMessageQueue(topicPartition));
+        } catch (MQClientException ex) {
+            LOGGER.warn("Topic partition: {} seek to beginning error", topicPartition, ex);
+            throw new ONSClientException("Seek offset to beginning failed");
+        }
     }
 
     @Override public void seekToEnd(TopicPartition topicPartition) {
-        //TODO
+        try {
+            this.litePullConsumer.seekToEnd(convertToMessageQueue(topicPartition));
+        } catch (MQClientException ex) {
+            LOGGER.warn("Topic partition: {} seek to end error", topicPartition, ex);
+            throw new ONSClientException("Seek offset to end failed");
+        }
 
     }
 

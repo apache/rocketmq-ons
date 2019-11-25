@@ -63,5 +63,6 @@ public class MQTimerProducer {
                 e.printStackTrace();
             }
         }
+        producer.shutdown();
     }
 }
