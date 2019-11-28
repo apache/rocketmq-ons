@@ -21,14 +21,13 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceConstants;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.common.namesrv.TopAddressing;
-
 import org.apache.rocketmq.ons.api.impl.authority.SessionCredentials;
 import org.apache.rocketmq.ons.api.impl.rocketmq.ClientRPCHook;
+import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceConstants;
+import org.apache.rocketmq.remoting.RPCHook;
 
 public class TraceProducerFactory {
     private static Map<String, Object> dispatcherTable = new ConcurrentHashMap<String, Object>();
@@ -61,7 +60,27 @@ public class TraceProducerFactory {
         return traceProducer;
     }
 
-    public static DefaultMQProducer getTraceDispatcherProducer(Properties properties, SessionCredentials sessionCredentials) {
+    public static DefaultMQProducer getTraceDispatcherProducer(Properties properties, RPCHook rpcHook) {
+        if (traceProducer == null) {
+            traceProducer = new DefaultMQProducer(rpcHook);
+            traceProducer.setProducerGroup(OnsTraceConstants.groupName);
+            traceProducer.setSendMsgTimeout(5000);
+            traceProducer.setInstanceName(properties.getProperty(OnsTraceConstants.InstanceName, String.valueOf(System.currentTimeMillis())));
+            String nameSrv = properties.getProperty(OnsTraceConstants.NAMESRV_ADDR);
+            if (nameSrv == null) {
+                TopAddressing topAddressing = new TopAddressing(properties.getProperty(OnsTraceConstants.ADDRSRV_URL));
+                nameSrv = topAddressing.fetchNSAddr();
+            }
+            traceProducer.setNamesrvAddr(nameSrv);
+            traceProducer.setVipChannelEnabled(false);
+            int maxSize = Integer.parseInt(properties.getProperty(OnsTraceConstants.MaxMsgSize, "128000"));
+            traceProducer.setMaxMessageSize(maxSize - 10 * 1000);
+        }
+        return traceProducer;
+    }
+
+    public static DefaultMQProducer getTraceDispatcherProducer(Properties properties,
+        SessionCredentials sessionCredentials) {
         if (traceProducer == null) {
             String accessKey = properties.getProperty(OnsTraceConstants.AccessKey);
             traceProducer = new DefaultMQProducer(new ClientRPCHook(sessionCredentials));
@@ -86,12 +105,14 @@ public class TraceProducerFactory {
         if (traceProducer != null && isStarted.compareAndSet(false, true)) {
             traceProducer.start();
         }
+
     }
 
     public static void unregisterTraceDispatcher(String dispatcherId) {
         dispatcherTable.remove(dispatcherId);
-        if (dispatcherTable.isEmpty() && traceProducer != null && isStarted.get()) {
+        if (dispatcherTable.isEmpty() && traceProducer != null && isStarted.compareAndSet(true, false)) {
             traceProducer.shutdown();
         }
     }
+
 }
