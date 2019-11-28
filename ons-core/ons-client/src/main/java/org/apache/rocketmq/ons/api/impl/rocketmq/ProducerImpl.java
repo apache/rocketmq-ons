@@ -30,6 +30,7 @@ import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.common.message.MessageClientIDSetter;
 import org.apache.rocketmq.common.protocol.ResponseCode;
 import org.apache.rocketmq.logging.InternalLogger;
+import org.apache.rocketmq.ons.open.trace.core.hook.OnsClientSendMessageHookImpl;
 import org.apache.rocketmq.remoting.exception.RemotingConnectException;
 import org.apache.rocketmq.remoting.exception.RemotingTimeoutException;
 
@@ -40,7 +41,6 @@ import org.apache.rocketmq.ons.api.PropertyKeyConst;
 import org.apache.rocketmq.ons.api.SendCallback;
 import org.apache.rocketmq.ons.api.SendResult;
 import org.apache.rocketmq.ons.api.exception.ONSClientException;
-import org.apache.rocketmq.ons.api.impl.tracehook.OnsClientSendMessageHookImpl;
 import org.apache.rocketmq.ons.api.impl.util.ClientLoggerUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.remoting.protocol.LanguageCode;

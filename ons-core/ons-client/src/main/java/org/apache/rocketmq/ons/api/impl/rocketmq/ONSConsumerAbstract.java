@@ -30,9 +30,9 @@ import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.ons.api.MessageSelector;
 import org.apache.rocketmq.ons.api.PropertyKeyConst;
 import org.apache.rocketmq.ons.api.exception.ONSClientException;
-import org.apache.rocketmq.ons.api.impl.tracehook.OnsConsumeMessageHookImpl;
 import org.apache.rocketmq.ons.api.impl.util.ClientLoggerUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.ons.open.trace.core.hook.OnsConsumeMessageHookImpl;
 import org.apache.rocketmq.remoting.protocol.LanguageCode;
 
 public class ONSConsumerAbstract extends ONSClientAbstract {
