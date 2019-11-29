@@ -36,14 +36,18 @@ public class TraceProducerFactory {
 
     public static DefaultMQProducer getTraceDispatcherProducer(Properties properties) {
         if (traceProducer == null) {
-            SessionCredentials sessionCredentials = new SessionCredentials();
-            Properties sessionProperties = new Properties();
             String accessKey = properties.getProperty(OnsTraceConstants.AccessKey);
             String secretKey = properties.getProperty(OnsTraceConstants.SecretKey);
-            sessionProperties.put(OnsTraceConstants.AccessKey, accessKey);
-            sessionProperties.put(OnsTraceConstants.SecretKey, secretKey);
-            sessionCredentials.updateContent(sessionProperties);
-            traceProducer = new DefaultMQProducer(new ClientRPCHook(sessionCredentials));
+            if (accessKey != null && secretKey != null) {
+                SessionCredentials sessionCredentials = new SessionCredentials();
+                Properties sessionProperties = new Properties();
+                sessionProperties.put(OnsTraceConstants.AccessKey, accessKey);
+                sessionProperties.put(OnsTraceConstants.SecretKey, secretKey);
+                sessionCredentials.updateContent(sessionProperties);
+                traceProducer = new DefaultMQProducer(new ClientRPCHook(sessionCredentials));
+            } else {
+                traceProducer = new DefaultMQProducer();
+            }
             traceProducer.setProducerGroup(accessKey + OnsTraceConstants.groupName);
             traceProducer.setSendMsgTimeout(5000);
             traceProducer.setInstanceName(properties.getProperty(OnsTraceConstants.InstanceName, String.valueOf(System.currentTimeMillis())));
