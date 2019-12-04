@@ -46,7 +46,6 @@ import org.apache.rocketmq.common.message.Message;
 import org.apache.rocketmq.common.message.MessageQueue;
 import org.apache.rocketmq.common.protocol.NamespaceUtil;
 import org.apache.rocketmq.logging.InternalLogger;
-import org.apache.rocketmq.ons.api.impl.authority.SessionCredentials;
 import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceConstants;
 import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceContext;
 import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceDataEncoder;
@@ -75,20 +74,13 @@ public class AsyncArrayDispatcher implements AsyncDispatcher {
     private String dispatcherId = UUID.randomUUID().toString();
     private String customizedTraceTopic;
 
+    /**
+     * Create AsyncArrayDispatcher with acl RPC hook.
+     *
+     * @param properties
+     * @param rpcHook RPC hook only can be set with AclRPCHook
+     */
     public AsyncArrayDispatcher(Properties properties, RPCHook rpcHook) {
-        this(properties, null, rpcHook);
-        traceProducer = TraceProducerFactory.getTraceDispatcherProducer(properties, rpcHook);
-    }
-
-    public AsyncArrayDispatcher(Properties properties) {
-        this(properties, null, null);
-    }
-
-    public AsyncArrayDispatcher(Properties properties, SessionCredentials sessionCredentials) {
-        this(properties, sessionCredentials, null);
-    }
-
-    public AsyncArrayDispatcher(Properties properties, SessionCredentials sessionCredentials, RPCHook rpcHook) {
         dispatcherType = properties.getProperty(OnsTraceConstants.TraceDispatcherType);
         this.customizedTraceTopic = properties.getProperty(OnsTraceConstants.CustomizedTraceTopic);
         int queueSize = Integer.parseInt(properties.getProperty(OnsTraceConstants.AsyncBufferSize, "2048"));
@@ -106,15 +98,7 @@ public class AsyncArrayDispatcher implements AsyncDispatcher {
             TimeUnit.MILLISECONDS, //
             this.appenderQueue, //
             new ThreadFactoryImpl("MQTraceSendThread_"));
-        if (sessionCredentials == null && rpcHook == null) {
-            traceProducer = TraceProducerFactory.getTraceDispatcherProducer(properties);
-        }
-        if (properties != null && rpcHook != null) {
-            traceProducer = TraceProducerFactory.getTraceDispatcherProducer(properties, rpcHook);
-        }
-        if (properties != null && sessionCredentials != null) {
-            traceProducer = TraceProducerFactory.getTraceDispatcherProducer(properties, sessionCredentials);
-        }
+        traceProducer = TraceProducerFactory.getTraceDispatcherProducer(properties, rpcHook);
     }
 
     public DefaultMQProducerImpl getHostProducer() {

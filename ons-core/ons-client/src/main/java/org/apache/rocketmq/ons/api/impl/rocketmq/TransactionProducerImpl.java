@@ -17,7 +17,6 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
-
 import io.openmessaging.api.Message;
 import io.openmessaging.api.SendResult;
 import io.openmessaging.api.transaction.LocalTransactionExecuter;
@@ -25,6 +24,7 @@ import io.openmessaging.api.transaction.TransactionProducer;
 import io.openmessaging.api.transaction.TransactionStatus;
 import java.util.Properties;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.acl.common.AclClientRPCHook;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.producer.LocalTransactionState;
 import org.apache.rocketmq.client.producer.TransactionCheckListener;
@@ -53,7 +53,8 @@ public class TransactionProducerImpl extends ONSClientAbstract implements Transa
             producerGroup = "__ONS_PRODUCER_DEFAULT_GROUP";
         }
         transactionMQProducer =
-            new TransactionMQProducer(this.getNamespace(), producerGroup, new OnsClientRPCHook(sessionCredentials));
+            new TransactionMQProducer(this.getNamespace(), producerGroup, new OnsClientRPCHook(sessionCredentials,
+                properties.getProperty(Constants.ONS_CHANNEL_KEY)));
 
         boolean isVipChannelEnabled = Boolean.parseBoolean(properties.getProperty(PropertyKeyConst.isVipChannelEnabled, "false"));
         transactionMQProducer.setVipChannelEnabled(isVipChannelEnabled);
@@ -75,15 +76,13 @@ public class TransactionProducerImpl extends ONSClientAbstract implements Transa
         } else {
             try {
                 Properties tempProperties = new Properties();
-                tempProperties.put(OnsTraceConstants.AccessKey, sessionCredentials.getAccessKey());
-                tempProperties.put(OnsTraceConstants.SecretKey, sessionCredentials.getSecretKey());
                 tempProperties.put(OnsTraceConstants.MaxMsgSize, "128000");
                 tempProperties.put(OnsTraceConstants.AsyncBufferSize, "2048");
                 tempProperties.put(OnsTraceConstants.MaxBatchNum, "100");
                 tempProperties.put(OnsTraceConstants.NAMESRV_ADDR, this.getNameServerAddr());
                 tempProperties.put(OnsTraceConstants.InstanceName, "PID_CLIENT_INNER_TRACE_PRODUCER");
                 tempProperties.put(OnsTraceConstants.TraceDispatcherType, OnsTraceDispatcherType.PRODUCER.name());
-                AsyncArrayDispatcher dispatcher = new AsyncArrayDispatcher(tempProperties, sessionCredentials);
+                AsyncArrayDispatcher dispatcher = new AsyncArrayDispatcher(tempProperties, new AclClientRPCHook(sessionCredentials));
                 dispatcher.setHostProducer(transactionMQProducer.getDefaultMQProducerImpl());
                 traceDispatcher = dispatcher;
                 this.transactionMQProducer.getDefaultMQProducerImpl().registerSendMessageHook(

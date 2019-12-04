@@ -17,14 +17,15 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
-
 import io.openmessaging.api.MessageSelector;
 import java.util.Properties;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.acl.common.AclClientRPCHook;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.logging.InternalLogger;
+import org.apache.rocketmq.ons.api.Constants;
 import org.apache.rocketmq.ons.api.PropertyKeyConst;
 import org.apache.rocketmq.ons.api.exception.ONSClientException;
 import org.apache.rocketmq.ons.api.impl.util.ClientLoggerUtil;
@@ -55,8 +56,8 @@ public class ONSConsumerAbstract extends ONSClientAbstract {
         }
 
         this.defaultMQPushConsumer =
-            new DefaultMQPushConsumer(this.getNamespace(), consumerGroup, new OnsClientRPCHook(sessionCredentials));
-
+            new DefaultMQPushConsumer(this.getNamespace(), consumerGroup, new OnsClientRPCHook(sessionCredentials,
+                properties.getProperty(Constants.ONS_CHANNEL_KEY)));
 
         String maxReconsumeTimes = properties.getProperty(PropertyKeyConst.MaxReconsumeTimes);
         if (!UtilAll.isBlank(maxReconsumeTimes)) {
@@ -117,15 +118,13 @@ public class ONSConsumerAbstract extends ONSClientAbstract {
         } else {
             try {
                 Properties tempProperties = new Properties();
-                tempProperties.put(OnsTraceConstants.AccessKey, sessionCredentials.getAccessKey());
-                tempProperties.put(OnsTraceConstants.SecretKey, sessionCredentials.getSecretKey());
                 tempProperties.put(OnsTraceConstants.MaxMsgSize, "128000");
                 tempProperties.put(OnsTraceConstants.AsyncBufferSize, "2048");
                 tempProperties.put(OnsTraceConstants.MaxBatchNum, "100");
                 tempProperties.put(OnsTraceConstants.NAMESRV_ADDR, this.getNameServerAddr());
                 tempProperties.put(OnsTraceConstants.InstanceName, "PID_CLIENT_INNER_TRACE_PRODUCER");
                 tempProperties.put(OnsTraceConstants.TraceDispatcherType, OnsTraceDispatcherType.CONSUMER.name());
-                AsyncArrayDispatcher dispatcher = new AsyncArrayDispatcher(tempProperties, sessionCredentials);
+                AsyncArrayDispatcher dispatcher = new AsyncArrayDispatcher(tempProperties, new AclClientRPCHook(sessionCredentials));
                 dispatcher.setHostConsumer(defaultMQPushConsumer.getDefaultMQPushConsumerImpl());
                 traceDispatcher = dispatcher;
                 this.defaultMQPushConsumer.getDefaultMQPushConsumerImpl().registerConsumeMessageHook(

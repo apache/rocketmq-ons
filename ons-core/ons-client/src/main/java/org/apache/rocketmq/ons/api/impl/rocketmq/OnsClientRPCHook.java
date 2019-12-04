@@ -17,22 +17,38 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
-import org.apache.rocketmq.remoting.protocol.RemotingCommand;
+import org.apache.rocketmq.acl.common.AclClientRPCHook;
+import org.apache.rocketmq.acl.common.AclException;
+import org.apache.rocketmq.acl.common.SessionCredentials;
+import org.apache.rocketmq.ons.api.Constants;
 import org.apache.rocketmq.ons.api.impl.MQClientInfo;
-import org.apache.rocketmq.ons.api.impl.authority.SessionCredentials;
+import org.apache.rocketmq.ons.api.impl.authority.exception.AuthenticationException;
+import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 
-public class OnsClientRPCHook extends ClientRPCHook {
+public class OnsClientRPCHook extends AclClientRPCHook {
+    private static final int CAL_SIGNATURE_FAILED = 10015;
+    private final ONSChannel onsChannel;
 
-    public OnsClientRPCHook(SessionCredentials sessionCredentials) {
+//    public OnsClientRPCHook(SessionCredentials sessionCredentials) {
+//        super(sessionCredentials);
+//        this.onsChannel = ONSChannel.ALIYUN;
+//    }
+
+    public OnsClientRPCHook(SessionCredentials sessionCredentials, String channel) {
         super(sessionCredentials);
+        this.onsChannel = ONSChannel.valueOf(channel);
     }
 
     @Override
     public void doBeforeRequest(String remoteAddr, RemotingCommand request) {
-        super.doBeforeRequest(remoteAddr, request);
+        try {
+            super.doBeforeRequest(remoteAddr, request);
+        } catch (AclException aclException) {
+            throw new AuthenticationException("CAL_SIGNATURE_FAILED", CAL_SIGNATURE_FAILED, aclException.getMessage(), aclException);
+        }
+        request.addExtField(Constants.ONS_CHANNEL_KEY, onsChannel.name());
         request.setVersion(MQClientInfo.versionCode);
     }
-
 
     @Override
     public void doAfterResponse(String remoteAddr, RemotingCommand request, RemotingCommand response) {

@@ -17,7 +17,6 @@
 
 package org.apache.rocketmq.ons.api.impl.rocketmq;
 
-
 import io.openmessaging.api.Credentials;
 import io.openmessaging.api.LifeCycle;
 import java.util.Properties;
@@ -28,14 +27,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Generated;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.acl.common.SessionCredentials;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.impl.producer.DefaultMQProducerImpl;
 import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.common.namesrv.TopAddressing;
 import org.apache.rocketmq.logging.InternalLogger;
+import org.apache.rocketmq.ons.api.Constants;
 import org.apache.rocketmq.ons.api.PropertyKeyConst;
 import org.apache.rocketmq.ons.api.exception.ONSClientException;
-import org.apache.rocketmq.ons.api.impl.authority.SessionCredentials;
 import org.apache.rocketmq.ons.api.impl.util.ClientLoggerUtil;
 import org.apache.rocketmq.ons.api.impl.util.NameAddrUtils;
 import org.apache.rocketmq.ons.open.trace.core.dispatch.AsyncDispatcher;
@@ -74,27 +74,17 @@ public abstract class ONSClientAbstract implements LifeCycle, Credentials {
     public ONSClientAbstract(Properties properties) {
         this.properties = properties;
         this.sessionCredentials.updateContent(properties);
-        if (this.sessionCredentials.getOnsChannel().equals(ONSChannel.ALIYUN) &&
-            (null == this.sessionCredentials.getAccessKey() || "".equals(this.sessionCredentials.getAccessKey()))) {
-            throw new ONSClientException("please set access key");
-        }
-
-        if (this.sessionCredentials.getOnsChannel().equals(ONSChannel.ALIYUN) &&
-            (null == this.sessionCredentials.getSecretKey() || "".equals(this.sessionCredentials.getSecretKey()))) {
-            throw new ONSClientException("please set secret key");
-        }
-
-        if (null == this.sessionCredentials.getOnsChannel()) {
-            throw new ONSClientException("please set ons channel");
-        }
+        ONSChannel onsChannle = ONSChannel.valueOf(this.properties.getProperty(Constants.ONS_CHANNEL_KEY, "ALIYUN"));
 
         this.nameServerAddr = getNameSrvAddrFromProperties();
         if (nameServerAddr != null) {
             return;
         }
-        if (nameServerAddr == null && !this.sessionCredentials.getOnsChannel().equals(ONSChannel.ALIYUN)) {
+
+        if (nameServerAddr == null && !onsChannle.equals(ONSChannel.ALIYUN)) {
             return;
         }
+
         this.nameServerAddr = fetchNameServerAddr();
         if (null == nameServerAddr) {
             throw new ONSClientException(FAQ.errorMessage("Can not find name server, May be your network problem.", FAQ.FIND_NS_FAILED));
@@ -239,17 +229,6 @@ public abstract class ONSClientAbstract implements LifeCycle, Credentials {
 
     @Override
     public void updateCredential(Properties credentialProperties) {
-        if (this.sessionCredentials.getOnsChannel().equals(ONSChannel.ALIYUN) &&
-            (null == credentialProperties.getProperty(SessionCredentials.AccessKey)
-                || "".equals(credentialProperties.getProperty(SessionCredentials.AccessKey)))) {
-            throw new ONSClientException("update credential failed. please set access key.");
-        }
-
-        if (this.sessionCredentials.getOnsChannel().equals(ONSChannel.ALIYUN) &&
-            (null == credentialProperties.getProperty(SessionCredentials.SecretKey)
-                || "".equals(credentialProperties.getProperty(SessionCredentials.SecretKey)))) {
-            throw new ONSClientException("update credential failed. please set secret key");
-        }
         this.sessionCredentials.updateContent(credentialProperties);
     }
 

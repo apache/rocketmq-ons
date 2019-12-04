@@ -15,12 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.rocketmq.ons.api;
+package org.apache.rocketmq.ons.api.impl.rocketmq;
 
-public class Constants {
-    public static final String TRANSACTION_ID = "__transactionId__";
 
-    public static final String TOPIC_PARTITION_SEPARATOR = "#";
+public enum ONSChannel {
 
-    public static final String ONS_CHANNEL_KEY = "OnsChannel";
+    CLOUD,
+
+    ALIYUN,
+
+    ALL
 }
