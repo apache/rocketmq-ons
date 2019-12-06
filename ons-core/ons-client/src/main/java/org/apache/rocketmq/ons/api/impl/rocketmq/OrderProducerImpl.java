@@ -50,8 +50,7 @@ public class OrderProducerImpl extends ONSClientAbstract implements OrderProduce
         }
 
         this.defaultMQProducer =
-            new DefaultMQProducer(this.getNamespace(), producerGroup, new OnsClientRPCHook(sessionCredentials,
-                properties.getProperty(Constants.ONS_CHANNEL_KEY)));
+            new DefaultMQProducer(this.getNamespace(), producerGroup, new OnsClientRPCHook(sessionCredentials));
 
         this.defaultMQProducer.setProducerGroup(producerGroup);
 

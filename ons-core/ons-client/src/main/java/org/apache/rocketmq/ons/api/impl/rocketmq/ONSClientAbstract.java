@@ -27,15 +27,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Generated;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.rocketmq.acl.common.SessionCredentials;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.impl.producer.DefaultMQProducerImpl;
 import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.common.namesrv.TopAddressing;
 import org.apache.rocketmq.logging.InternalLogger;
-import org.apache.rocketmq.ons.api.Constants;
 import org.apache.rocketmq.ons.api.PropertyKeyConst;
 import org.apache.rocketmq.ons.api.exception.ONSClientException;
+import org.apache.rocketmq.ons.api.impl.authority.exception.OnsSessionCredentials;
 import org.apache.rocketmq.ons.api.impl.util.ClientLoggerUtil;
 import org.apache.rocketmq.ons.api.impl.util.NameAddrUtils;
 import org.apache.rocketmq.ons.open.trace.core.dispatch.AsyncDispatcher;
@@ -56,7 +55,7 @@ public abstract class ONSClientAbstract implements LifeCycle, Credentials {
         Long.parseLong(System.getProperty("com.aliyun.openservices.ons.addr.internet.timeoutmills", "5000"));
     private final static InternalLogger LOGGER = ClientLoggerUtil.getClientLogger();
     protected final Properties properties;
-    protected final SessionCredentials sessionCredentials = new SessionCredentials();
+    protected final OnsSessionCredentials sessionCredentials = new OnsSessionCredentials();
     protected String nameServerAddr = NameAddrUtils.getNameAdd();
 
     protected AsyncDispatcher traceDispatcher = null;
@@ -74,14 +73,14 @@ public abstract class ONSClientAbstract implements LifeCycle, Credentials {
     public ONSClientAbstract(Properties properties) {
         this.properties = properties;
         this.sessionCredentials.updateContent(properties);
-        ONSChannel onsChannle = ONSChannel.valueOf(this.properties.getProperty(Constants.ONS_CHANNEL_KEY, "ALIYUN"));
+        String channel = this.sessionCredentials.getOnsChannel();
 
         this.nameServerAddr = getNameSrvAddrFromProperties();
         if (nameServerAddr != null) {
             return;
         }
 
-        if (nameServerAddr == null && !onsChannle.equals(ONSChannel.ALIYUN)) {
+        if (nameServerAddr == null && !channel.equals("ALIYUN")) {
             return;
         }
 

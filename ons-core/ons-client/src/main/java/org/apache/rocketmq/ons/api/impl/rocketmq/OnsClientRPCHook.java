@@ -23,20 +23,14 @@ import org.apache.rocketmq.acl.common.SessionCredentials;
 import org.apache.rocketmq.ons.api.Constants;
 import org.apache.rocketmq.ons.api.impl.MQClientInfo;
 import org.apache.rocketmq.ons.api.impl.authority.exception.AuthenticationException;
+import org.apache.rocketmq.ons.api.impl.authority.exception.OnsSessionCredentials;
 import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 
 public class OnsClientRPCHook extends AclClientRPCHook {
     private static final int CAL_SIGNATURE_FAILED = 10015;
-    private final ONSChannel onsChannel;
 
-//    public OnsClientRPCHook(SessionCredentials sessionCredentials) {
-//        super(sessionCredentials);
-//        this.onsChannel = ONSChannel.ALIYUN;
-//    }
-
-    public OnsClientRPCHook(SessionCredentials sessionCredentials, String channel) {
+    public OnsClientRPCHook(SessionCredentials sessionCredentials) {
         super(sessionCredentials);
-        this.onsChannel = ONSChannel.valueOf(channel);
     }
 
     @Override
@@ -46,7 +40,11 @@ public class OnsClientRPCHook extends AclClientRPCHook {
         } catch (AclException aclException) {
             throw new AuthenticationException("CAL_SIGNATURE_FAILED", CAL_SIGNATURE_FAILED, aclException.getMessage(), aclException);
         }
-        request.addExtField(Constants.ONS_CHANNEL_KEY, onsChannel.name());
+        if (this.getSessionCredentials() instanceof OnsSessionCredentials) {
+            OnsSessionCredentials onsSessionCredentials = (OnsSessionCredentials) getSessionCredentials();
+            System.out.println("Channel: " + onsSessionCredentials.getOnsChannel());
+            request.addExtField(Constants.ONS_CHANNEL_KEY, onsSessionCredentials.getOnsChannel());
+        }
         request.setVersion(MQClientInfo.versionCode);
     }
 
