@@ -30,6 +30,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.client.common.ThreadLocalIndex;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.impl.consumer.DefaultMQPushConsumerImpl;
@@ -45,20 +46,20 @@ import org.apache.rocketmq.common.message.Message;
 import org.apache.rocketmq.common.message.MessageQueue;
 import org.apache.rocketmq.common.protocol.NamespaceUtil;
 import org.apache.rocketmq.logging.InternalLogger;
-import org.apache.rocketmq.ons.api.impl.authority.SessionCredentials;
 import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceConstants;
 import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceContext;
 import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceDataEncoder;
 import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceDispatcherType;
 import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceTransferBean;
 import org.apache.rocketmq.ons.open.trace.core.dispatch.AsyncDispatcher;
+import org.apache.rocketmq.remoting.RPCHook;
 
 public class AsyncArrayDispatcher implements AsyncDispatcher {
     private final static InternalLogger CLIENT_LOG = ClientLogger.getLog();
     private final int queueSize;
     private final int batchSize;
-    private final DefaultMQProducer traceProducer;
-    private final ThreadPoolExecutor traceExecuter;
+    private DefaultMQProducer traceProducer;
+    private final ThreadPoolExecutor traceExecutor;
 
     private AtomicLong discardCount;
     private Thread worker;
@@ -71,9 +72,17 @@ public class AsyncArrayDispatcher implements AsyncDispatcher {
     private DefaultMQPushConsumerImpl hostConsumer;
     private volatile ThreadLocalIndex sendWhichQueue = new ThreadLocalIndex();
     private String dispatcherId = UUID.randomUUID().toString();
+    private String customizedTraceTopic;
 
-    public AsyncArrayDispatcher(Properties properties) throws MQClientException {
+    /**
+     * Create AsyncArrayDispatcher with acl RPC hook.
+     *
+     * @param properties
+     * @param rpcHook RPC hook only can be set with AclRPCHook
+     */
+    public AsyncArrayDispatcher(Properties properties, RPCHook rpcHook) {
         dispatcherType = properties.getProperty(OnsTraceConstants.TraceDispatcherType);
+        this.customizedTraceTopic = properties.getProperty(OnsTraceConstants.CustomizedTraceTopic);
         int queueSize = Integer.parseInt(properties.getProperty(OnsTraceConstants.AsyncBufferSize, "2048"));
         queueSize = 1 << (32 - Integer.numberOfLeadingZeros(queueSize - 1));
         this.queueSize = queueSize;
@@ -82,34 +91,14 @@ public class AsyncArrayDispatcher implements AsyncDispatcher {
         traceContextQueue = new ArrayBlockingQueue<OnsTraceContext>(1024);
         appenderQueue = new ArrayBlockingQueue<Runnable>(queueSize);
 
-        this.traceExecuter = new ThreadPoolExecutor(//
+        this.traceExecutor = new ThreadPoolExecutor(//
             10, //
             20, //
             1000 * 60, //
             TimeUnit.MILLISECONDS, //
             this.appenderQueue, //
             new ThreadFactoryImpl("MQTraceSendThread_"));
-        traceProducer = TraceProducerFactory.getTraceDispatcherProducer(properties);
-    }
-
-    public AsyncArrayDispatcher(Properties properties, SessionCredentials sessionCredentials) throws MQClientException {
-        dispatcherType = properties.getProperty(OnsTraceConstants.TraceDispatcherType);
-        int queueSize = Integer.parseInt(properties.getProperty(OnsTraceConstants.AsyncBufferSize, "2048"));
-        queueSize = 1 << (32 - Integer.numberOfLeadingZeros(queueSize - 1));
-        this.queueSize = queueSize;
-        batchSize = Integer.parseInt(properties.getProperty(OnsTraceConstants.MaxBatchNum, "1"));
-        this.discardCount = new AtomicLong(0L);
-        traceContextQueue = new ArrayBlockingQueue<OnsTraceContext>(1024);
-        appenderQueue = new ArrayBlockingQueue<Runnable>(queueSize);
-
-        this.traceExecuter = new ThreadPoolExecutor(
-            10,
-            20,
-            1000 * 60,
-            TimeUnit.MILLISECONDS,
-            this.appenderQueue,
-            new ThreadFactoryImpl("MQTraceSendThread_"));
-        traceProducer = TraceProducerFactory.getTraceDispatcherProducer(properties, sessionCredentials);
+        traceProducer = TraceProducerFactory.getTraceDispatcherProducer(properties, rpcHook);
     }
 
     public DefaultMQProducerImpl getHostProducer() {
@@ -138,6 +127,12 @@ public class AsyncArrayDispatcher implements AsyncDispatcher {
     }
 
     @Override
+    public void start(String nameServerAddresses) throws MQClientException {
+        this.traceProducer.setNamesrvAddr(nameServerAddresses);
+        this.start();
+    }
+
+    @Override
     public boolean append(final Object ctx) {
         boolean result = traceContextQueue.offer((OnsTraceContext) ctx);
         if (!result) {
@@ -162,7 +157,7 @@ public class AsyncArrayDispatcher implements AsyncDispatcher {
     @Override
     public void shutdown() {
         this.stopped = true;
-        this.traceExecuter.shutdown();
+        this.traceExecutor.shutdown();
         TraceProducerFactory.unregisterTraceDispatcher(dispatcherId);
         this.removeShutdownHook();
     }
@@ -171,6 +166,7 @@ public class AsyncArrayDispatcher implements AsyncDispatcher {
         if (shutDownHook == null) {
             shutDownHook = new ThreadFactoryImpl("ShutdownHookMQTrace").newThread(new Runnable() {
                 private volatile boolean hasShutdown = false;
+
                 @Override
                 public void run() {
                     synchronized (this) {
@@ -215,7 +211,7 @@ public class AsyncArrayDispatcher implements AsyncDispatcher {
                 }
                 if (contexts.size() > 0) {
                     AsyncAppenderRequest request = new AsyncAppenderRequest(contexts);
-                    traceExecuter.submit(request);
+                    traceExecutor.submit(request);
                 } else if (AsyncArrayDispatcher.this.stopped) {
                     this.stopped = true;
                 }
@@ -291,9 +287,13 @@ public class AsyncArrayDispatcher implements AsyncDispatcher {
 
         private void sendTraceDataByMQ(Set<String> keySet, final String data, String dataTopic,
             String currentRegionId) {
-            String topic = OnsTraceConstants.traceTopic + currentRegionId;
+            String topic = customizedTraceTopic;
+            if (StringUtils.isBlank(topic)) {
+                topic = OnsTraceConstants.traceTopic + currentRegionId;
+            }
             final Message message = new Message(topic, data.getBytes());
             message.setKeys(keySet);
+
             try {
                 Set<String> dataBrokerSet = getBrokerSetByTopic(dataTopic);
                 Set<String> traceBrokerSet = tryGetMessageQueueBrokerSet(traceProducer.getDefaultMQProducerImpl(), topic);
@@ -305,7 +305,7 @@ public class AsyncArrayDispatcher implements AsyncDispatcher {
 
                     @Override
                     public void onException(Throwable e) {
-                        CLIENT_LOG.info("send trace data ,the traceData is " + data);
+                        CLIENT_LOG.info("send trace data ,the traceData is: {} ", data, e);
                     }
                 };
                 if (dataBrokerSet.isEmpty()) {
@@ -333,7 +333,7 @@ public class AsyncArrayDispatcher implements AsyncDispatcher {
                 }
 
             } catch (Exception e) {
-                CLIENT_LOG.info("send trace data,the traceData is" + data);
+                CLIENT_LOG.info("send trace data,the traceData is: {}", data, e);
             }
         }
 
@@ -378,5 +378,17 @@ public class AsyncArrayDispatcher implements AsyncDispatcher {
             }
             return brokerSet;
         }
+    }
+
+    public String getCustomizedTraceTopic() {
+        return customizedTraceTopic;
+    }
+
+    public void setCustomizedTraceTopic(String customizedTraceTopic) {
+        this.customizedTraceTopic = customizedTraceTopic;
+    }
+
+    public DefaultMQProducer getTraceProducer() {
+        return traceProducer;
     }
 }

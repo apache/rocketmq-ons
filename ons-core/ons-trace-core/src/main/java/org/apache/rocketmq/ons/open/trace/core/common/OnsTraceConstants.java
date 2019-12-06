@@ -18,7 +18,6 @@
 package org.apache.rocketmq.ons.open.trace.core.common;
 
 import javax.annotation.Generated;
-
 import org.apache.rocketmq.common.MixAll;
 
 @Generated("ons-client")
@@ -42,16 +41,16 @@ public class OnsTraceConstants {
 
     public static final String MaxMsgSize = "MaxMsgSize";
 
-
     public static final String groupName = "_INNER_TRACE_PRODUCER";
 
     public static final String traceTopic = MixAll.SYSTEM_TOPIC_PREFIX + "TRACE_DATA_";
 
-
     public static final String default_region = MixAll.DEFAULT_TRACE_REGION_ID;
 
-    public static final char CONTENT_SPLITOR = (char)1;
-    public static final char FIELD_SPLITOR = (char)2;
+    public static final char CONTENT_SPLITOR = (char) 1;
+    public static final char FIELD_SPLITOR = (char) 2;
 
     public static final String TraceDispatcherType = "DispatcherType";
+
+    public static final String CustomizedTraceTopic = "customizedTraceTopic";
 }

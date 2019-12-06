@@ -30,4 +30,6 @@ public interface AsyncDispatcher {
     void flush() throws IOException;
 
     void shutdown();
+
+    void start(String nameServerAddresses) throws MQClientException;
 }

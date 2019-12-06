@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.rocketmq.ons.api.impl.tracehook;
+package org.apache.rocketmq.ons.open.trace.core.hook;
 
 import java.util.ArrayList;
 import java.util.List;

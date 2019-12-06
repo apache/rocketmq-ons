@@ -32,13 +32,14 @@ import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.common.message.MessageClientIDSetter;
 import org.apache.rocketmq.common.protocol.ResponseCode;
 import org.apache.rocketmq.logging.InternalLogger;
+import org.apache.rocketmq.ons.api.Constants;
 import org.apache.rocketmq.ons.api.PropertyKeyConst;
 import org.apache.rocketmq.ons.api.exception.ONSClientException;
-import org.apache.rocketmq.ons.api.impl.tracehook.OnsClientSendMessageHookImpl;
 import org.apache.rocketmq.ons.api.impl.util.ClientLoggerUtil;
 import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceConstants;
 import org.apache.rocketmq.ons.open.trace.core.common.OnsTraceDispatcherType;
 import org.apache.rocketmq.ons.open.trace.core.dispatch.impl.AsyncArrayDispatcher;
+import org.apache.rocketmq.ons.open.trace.core.hook.OnsClientSendMessageHookImpl;
 import org.apache.rocketmq.remoting.exception.RemotingConnectException;
 import org.apache.rocketmq.remoting.exception.RemotingTimeoutException;
 import org.apache.rocketmq.remoting.protocol.LanguageCode;
@@ -56,7 +57,8 @@ public class ProducerImpl extends ONSClientAbstract implements Producer {
         }
 
         this.defaultMQProducer =
-            new DefaultMQProducer(this.getNamespace(), producerGroup, new OnsClientRPCHook(sessionCredentials));
+            new DefaultMQProducer(this.getNamespace(), producerGroup, new OnsClientRPCHook(sessionCredentials,
+                properties.getProperty(Constants.ONS_CHANNEL_KEY)));
 
         this.defaultMQProducer.setProducerGroup(producerGroup);
 
@@ -96,7 +98,8 @@ public class ProducerImpl extends ONSClientAbstract implements Producer {
                 tempProperties.put(OnsTraceConstants.NAMESRV_ADDR, this.getNameServerAddr());
                 tempProperties.put(OnsTraceConstants.InstanceName, "PID_CLIENT_INNER_TRACE_PRODUCER");
                 tempProperties.put(OnsTraceConstants.TraceDispatcherType, OnsTraceDispatcherType.PRODUCER.name());
-                AsyncArrayDispatcher dispatcher = new AsyncArrayDispatcher(tempProperties, sessionCredentials);
+                AsyncArrayDispatcher dispatcher = new AsyncArrayDispatcher(tempProperties,
+                    new OnsClientRPCHook(sessionCredentials, properties.getProperty(Constants.ONS_CHANNEL_KEY)));
                 dispatcher.setHostProducer(defaultMQProducer.getDefaultMQProducerImpl());
                 traceDispatcher = dispatcher;
                 this.defaultMQProducer.getDefaultMQProducerImpl().registerSendMessageHook(
