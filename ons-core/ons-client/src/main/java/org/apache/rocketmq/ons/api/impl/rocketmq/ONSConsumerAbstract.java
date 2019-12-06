@@ -25,7 +25,6 @@ import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.logging.InternalLogger;
-import org.apache.rocketmq.ons.api.Constants;
 import org.apache.rocketmq.ons.api.PropertyKeyConst;
 import org.apache.rocketmq.ons.api.exception.ONSClientException;
 import org.apache.rocketmq.ons.api.impl.util.ClientLoggerUtil;
@@ -56,8 +55,7 @@ public class ONSConsumerAbstract extends ONSClientAbstract {
         }
 
         this.defaultMQPushConsumer =
-            new DefaultMQPushConsumer(this.getNamespace(), consumerGroup, new OnsClientRPCHook(sessionCredentials,
-                properties.getProperty(Constants.ONS_CHANNEL_KEY)));
+            new DefaultMQPushConsumer(this.getNamespace(), consumerGroup, new OnsClientRPCHook(sessionCredentials));
 
         String maxReconsumeTimes = properties.getProperty(PropertyKeyConst.MaxReconsumeTimes);
         if (!UtilAll.isBlank(maxReconsumeTimes)) {

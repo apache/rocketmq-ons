@@ -32,7 +32,6 @@ import org.apache.rocketmq.common.UtilAll;
 import org.apache.rocketmq.common.message.MessageClientIDSetter;
 import org.apache.rocketmq.common.protocol.ResponseCode;
 import org.apache.rocketmq.logging.InternalLogger;
-import org.apache.rocketmq.ons.api.Constants;
 import org.apache.rocketmq.ons.api.PropertyKeyConst;
 import org.apache.rocketmq.ons.api.exception.ONSClientException;
 import org.apache.rocketmq.ons.api.impl.util.ClientLoggerUtil;
@@ -57,8 +56,7 @@ public class ProducerImpl extends ONSClientAbstract implements Producer {
         }
 
         this.defaultMQProducer =
-            new DefaultMQProducer(this.getNamespace(), producerGroup, new OnsClientRPCHook(sessionCredentials,
-                properties.getProperty(Constants.ONS_CHANNEL_KEY)));
+            new DefaultMQProducer(this.getNamespace(), producerGroup, new OnsClientRPCHook(sessionCredentials));
 
         this.defaultMQProducer.setProducerGroup(producerGroup);
 
@@ -99,7 +97,7 @@ public class ProducerImpl extends ONSClientAbstract implements Producer {
                 tempProperties.put(OnsTraceConstants.InstanceName, "PID_CLIENT_INNER_TRACE_PRODUCER");
                 tempProperties.put(OnsTraceConstants.TraceDispatcherType, OnsTraceDispatcherType.PRODUCER.name());
                 AsyncArrayDispatcher dispatcher = new AsyncArrayDispatcher(tempProperties,
-                    new OnsClientRPCHook(sessionCredentials, properties.getProperty(Constants.ONS_CHANNEL_KEY)));
+                    new OnsClientRPCHook(sessionCredentials));
                 dispatcher.setHostProducer(defaultMQProducer.getDefaultMQProducerImpl());
                 traceDispatcher = dispatcher;
                 this.defaultMQProducer.getDefaultMQProducerImpl().registerSendMessageHook(

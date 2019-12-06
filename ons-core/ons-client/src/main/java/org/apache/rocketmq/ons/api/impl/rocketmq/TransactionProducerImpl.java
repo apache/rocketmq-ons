@@ -53,8 +53,7 @@ public class TransactionProducerImpl extends ONSClientAbstract implements Transa
             producerGroup = "__ONS_PRODUCER_DEFAULT_GROUP";
         }
         transactionMQProducer =
-            new TransactionMQProducer(this.getNamespace(), producerGroup, new OnsClientRPCHook(sessionCredentials,
-                properties.getProperty(Constants.ONS_CHANNEL_KEY)));
+            new TransactionMQProducer(this.getNamespace(), producerGroup, new OnsClientRPCHook(sessionCredentials));
 
         boolean isVipChannelEnabled = Boolean.parseBoolean(properties.getProperty(PropertyKeyConst.isVipChannelEnabled, "false"));
         transactionMQProducer.setVipChannelEnabled(isVipChannelEnabled);

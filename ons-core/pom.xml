@@ -31,7 +31,6 @@
     <modules>
         <module>ons-client</module>
         <module>ons-trace-core</module>
-        <module>ons-auth4client</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -249,11 +248,6 @@
                 <groupId>org.apache.rocketmq</groupId>
                 <artifactId>rocketmq-acl</artifactId>
                 <version>${rocketmq.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>ons-auth4client</artifactId>
-                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>

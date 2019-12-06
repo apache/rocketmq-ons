@@ -63,8 +63,7 @@ public class PullConsumerImpl extends ONSClientAbstract implements PullConsumer 
         }
 
         this.litePullConsumer =
-            new DefaultLitePullConsumer(this.getNamespace(), consumerGroup, new OnsClientRPCHook(sessionCredentials,
-                properties.getProperty(Constants.ONS_CHANNEL_KEY)));
+            new DefaultLitePullConsumer(this.getNamespace(), consumerGroup, new OnsClientRPCHook(sessionCredentials));
 
         String messageModel = properties.getProperty(PropertyKeyConst.MessageModel, PropertyValueConst.CLUSTERING);
         this.litePullConsumer.setMessageModel(MessageModel.valueOf(messageModel));
