@@ -45,7 +45,7 @@ public class ONSClientTokenUpdateTest {
 
     @Before
     public void init() {
-        messagingAccessPoint = OMS.getMessagingAccessPoint("oms:rocketmq://47.107.167.190:9876");
+        messagingAccessPoint = OMS.getMessagingAccessPoint("oms:rocketmq://127.0.0.1:9876");
     }
 
     @Ignore
